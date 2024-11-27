@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.6'
     id 'io.spring.dependency-management' version '1.1.6'
+    id "org.sonarqube" version "6.0.0.5145"
 }
 
 group = 'com.sesac'
@@ -36,4 +37,12 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+sonar {
+    properties {
+        property "sonar.projectKey", "SesacMegazoneLMS_sesac-lms-backend"
+        property "sonar.organization", "sesacmegazonelms"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
 }
