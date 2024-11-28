@@ -117,8 +117,11 @@ jobs:
     environment: production
 
     steps:
-    - name: Checkout
+    - name: Checkout Docker Hub repository
       uses: actions/checkout@v4
+      with:
+        repository: SesacMegazoneLMS/sesac-lms-jar
+        token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # GitHub Secrets에서 가져온 토큰
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
