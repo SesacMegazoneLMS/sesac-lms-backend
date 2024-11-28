@@ -73,5 +73,16 @@ jobs:
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
-          git commit -m "Add built JAR file"
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/SesacMegazoneLMS/sesac-lms-jar.git main_LMS  # main_LMS 브랜치에 푸시
+          # 커밋 메시지에 GitHub Actions 실행 번호 포함
+          git commit -m "Add built JAR file from GitHub Actions run #${{ github.run_id }}"
+          # Pull Request 생성
+          git push origin HEAD:refs/heads/feature/add-jar-file-${{ github.run_id }}  # 새로운 브랜치로 푸시
+          
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Add built JAR file from GitHub Actions run #${{ github.run_id }}"
+          body: "This pull request includes the JAR file built from the GitHub Actions workflow."
+          head: "feature/add-jar-file-${{ github.run_id }}"
+          base: "main_LMS"  # 기본 브랜치
