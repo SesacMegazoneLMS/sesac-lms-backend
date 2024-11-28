@@ -63,7 +63,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: SesacMegazoneLMS/sesac-lms-jar  # 대상 리포지토리
-          token: ${{ secrets.GITHUB_TOKEN }}  # GitHub Secrets에서 가져온 토큰
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # 비공식 리포지토리에 접근하기 위한 토큰
           path: sesac-lms-jar  # 체크아웃할 경로
 
       - name: Upload JAR to GitHub Repository
@@ -74,7 +74,7 @@ jobs:
           git config user.email "action@github.com"
           git add .
           git commit -m "Add built JAR file"
-          git push origin main_LMS  # main_LMS 브랜치에 푸시
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/SesacMegazoneLMS/sesac-lms-jar.git main_LMS  # main_LMS 브랜치에 푸시
 
   docker:
     name: Build and push Docker image
