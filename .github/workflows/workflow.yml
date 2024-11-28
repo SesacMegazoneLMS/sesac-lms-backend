@@ -62,7 +62,7 @@ jobs:
       - name: Checkout sesac-lms-jar repository
         uses: actions/checkout@v4
         with:
-          repository: SesacMegazoneLMS/sesac-lms-jar  # 대상 리포지토리
+          repository: git-dongjin@SesacMegazoneLMS/sesac-lms-jar  # 대상 리포지토리
           token: ${{ secrets.GITHUB_TOKEN }}  # GitHub Secrets에서 가져온 토큰
           path: sesac-lms-jar  # 체크아웃할 경로
 
