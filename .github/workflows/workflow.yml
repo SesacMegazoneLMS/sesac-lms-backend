@@ -59,10 +59,17 @@ jobs:
         run: |
           ./gradlew build sonar -Dsonar.qualitygate.wait=true --info
 
+      - name: Checkout sesac-lms-jar repository
+        uses: actions/checkout@v4
+        with:
+          repository: SesacMegazoneLMS/sesac-lms-jar  # 대상 리포지토리
+          token: ${{ secrets.GITHUB_TOKEN }}  # GitHub Secrets에서 가져온 토큰
+          path: sesac-lms-jar  # 체크아웃할 경로
+
       - name: Upload JAR to GitHub Repository
         run: |
-          cp build/libs/*.jar ../sesac-lms-jar/  # JAR 파일을 다른 리포지토리로 복사
-          cd ../sesac-lms-jar
+          cp build/libs/*.jar sesac-lms-jar/  # JAR 파일을 다른 리포지토리로 복사
+          cd sesac-lms-jar
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
