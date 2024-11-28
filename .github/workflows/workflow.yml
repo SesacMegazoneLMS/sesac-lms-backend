@@ -49,19 +49,6 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
-      - name: Increment version
-        run: |
-          # 현재 버전 읽기
-          VERSION=$(cat version.txt)
-          # 버전 증가 (마이너 버전 증가)
-          IFS='.' read -r major minor patch <<< "$VERSION"
-          minor=$((minor + 1))
-          NEW_VERSION="$major.$minor.0"
-          echo $NEW_VERSION > version.txt
-          git config user.name "GitHub Action"
-          git config user.email "action@github.com"
-          git add version.txt
-          git commit -m "Increment version to $NEW_VERSION"
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -81,10 +68,33 @@ jobs:
 
       - name: Upload JAR to GitHub Repository
         run: |
-          cp build/libs/*.jar sesac-lms-jar/backend-${{ steps.increment_version.outputs.NEW_VERSION }}.jar  # JAR 파일을 다른 리포지토리로 복사
+          cp build/libs/*.jar sesac-lms-jar/  # JAR 파일을 다른 리포지토리로 복사
           cd sesac-lms-jar
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
-          git commit -m "Add built JAR file with version ${{ steps.increment_version.outputs.NEW_VERSION }}"
+          git commit -m "Add built JAR file"
           git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/SesacMegazoneLMS/sesac-lms-jar.git main_LMS  # main_LMS 브랜치에 푸시
+
+  docker:
+    name: Build and push Docker image
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout Docker Hub repository
+        uses: actions/checkout@v4
+        with:
+          repository: shindongjin/sesac-lms-image  # Docker Hub 리포지토리
+          token: ${{ secrets.GITHUB_TOKEN }}  # GitHub Secrets에서 가져온 토큰
+
+      - name: Build Docker image
+        run: |
+          docker build -t shindongjin/sesac-lms-image:latest .  # Dockerfile이 있는 경로에서 빌드
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Push Docker image
+        run: |
+          docker push shindongjin/sesac-lms-image:latest  # Docker Hub에 푸시
