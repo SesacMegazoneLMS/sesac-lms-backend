@@ -85,8 +85,8 @@ jobs:
       - name: Checkout Docker Hub repository
         uses: actions/checkout@v4
         with:
-          repository: shindongjin/sesac-lms-image  # Docker Hub 리포지토리
-          token: ${{ secrets.GITHUB_TOKEN }}  # GitHub Secrets에서 가져온 토큰
+          repository: SesacMegazoneLMS/sesac-lms-jar
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}  # GitHub Secrets에서 가져온 토큰
 
       - name: Build Docker image
         run: |
