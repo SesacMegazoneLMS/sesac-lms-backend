@@ -97,4 +97,4 @@ jobs:
 
       - name: Push Docker image
         run: |
-          docker push shindongjin/sesac-lms-image:latest  # Docker Hub에 푸시
+          docker push shindongjin/sesac-lms-image:latest  # Docker Hub에 push
