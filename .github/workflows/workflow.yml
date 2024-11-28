@@ -50,7 +50,6 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
       - name: Increment version
-        id: increment_version  # ID 추가
         run: |
           # 현재 버전 읽기
           VERSION=$(cat version.txt)
@@ -63,7 +62,6 @@ jobs:
           git config user.email "action@github.com"
           git add version.txt
           git commit -m "Increment version to $NEW_VERSION"
-          echo "::set-output name=new_version::$NEW_VERSION"  # 새로운 버전을 출력으로 설정
       - name: Build and analyze
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -83,13 +81,10 @@ jobs:
 
       - name: Upload JAR to GitHub Repository
         run: |
-          cp build/libs/*.jar sesac-lms-jar/backend-${{ steps.increment_version.outputs.new_version }}.jar  # JAR 파일을 다른 리포지토리로 복사
+          cp build/libs/*.jar sesac-lms-jar/backend-${{ steps.increment_version.outputs.NEW_VERSION }}.jar  # JAR 파일을 다른 리포지토리로 복사
           cd sesac-lms-jar
           git config user.name "GitHub Action"
           git config user.email "action@github.com"
           git add .
-          # 커밋 메시지에 GitHub Actions 실행 번호 포함
-          git commit -m "Add built JAR file with version ${{ steps.increment_version.outputs.new_version }} from GitHub Actions run #${{ github.run_id }}"
-          # 태그 추가
-          git tag -a "v${{ steps.increment_version.outputs.new_version }}" -m "Release version ${{ steps.increment_version.outputs.new_version }} from GitHub Actions run #${{ github.run_id }}"
-          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/SesacMegazoneLMS/sesac-lms-jar.git main_LMS --tags  # main_LMS 브랜치에 푸시 및 태그 푸시
+          git commit -m "Add built JAR file with version ${{ steps.increment_version.outputs.NEW_VERSION }}"
+          git push https://x-access-token:${{ secrets.PERSONAL_ACCESS_TOKEN }}@github.com/SesacMegazoneLMS/sesac-lms-jar.git main_LMS  # main_LMS 브랜치에 푸시
