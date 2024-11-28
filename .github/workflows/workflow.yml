@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and Analyze by SonarQube
+    name: Build and Analyze
     runs-on: ubuntu-latest
 
     services:
