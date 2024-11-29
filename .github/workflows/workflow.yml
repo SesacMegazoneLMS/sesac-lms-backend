@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: ["main_LMS", "develop"]
+    branches: ["main_LMS"]
   pull_request:
-    branches: ["main_LMS", "develop"]
+    branches: ["main_LMS"]
 
 env:
   AWS_REGION: ap-northeast-2                   # AWS 리전 설정
