@@ -67,6 +67,8 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/lms?characterEncoding=UTF-8
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}  # GitHub Secrets에서 가져온 환경 변수
+          AWS_COGNITO_USER_POOL_ID: ${{ secrets.AWS_COGNITO_USER_POOL_ID }}
+          AWS_COGNITO_REGION: ${{ secrets.AWS_COGNITO_REGION }}
         run: |
           ./gradlew build sonar -Dsonar.qualitygate.wait=true --info
 
