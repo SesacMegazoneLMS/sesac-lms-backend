@@ -1,6 +1,7 @@
 package com.sesac.backend.auths.utils;
 
-import com.sesac.backend.auths.constants.SecurityConstants;
+import static com.sesac.backend.auths.constants.SecurityConstants.*;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +38,9 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth ->
                 auth
-                    .requestMatchers(SecurityConstants.SIGN_UP_URL).permitAll()
-                    .requestMatchers("/health-check").permitAll()
+                    .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
+                    .requestMatchers(STUDENTS_API, "/tests/**").hasRole("STUDENT")
+                    .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
