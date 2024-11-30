@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: ["main_LMS"]
+    branches: ["main_LMS", "develop"]
   pull_request:
-    branches: ["main_LMS"]
+    branches: ["main_LMS", "develop"]
 
 env:
   AWS_REGION: ap-northeast-2                   # AWS 리전 설정
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and Analyze
+    name: Build and Analyze by SonarQube
     runs-on: ubuntu-latest
 
     services:
@@ -67,6 +67,8 @@ jobs:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/lms?characterEncoding=UTF-8
           SPRING_DATASOURCE_USERNAME: postgres
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}  # GitHub Secrets에서 가져온 환경 변수
+          AWS_COGNITO_USER_POOL_ID: ${{ secrets.AWS_COGNITO_USER_POOL_ID }}
+          AWS_COGNITO_REGION: ${{ secrets.AWS_COGNITO_REGION }}
         run: |
           ./gradlew build sonar -Dsonar.qualitygate.wait=true --info
 
@@ -101,7 +103,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t shindongjin/sesac-lms-image:latest .  # Dockerfile이 있는 경로에서 build
+          docker build -t shindongjin/sesac-lms-image:latest .  # Dockerfile이 있는 경로에서 빌드
 
       - name: Login to Docker Hub
         run: echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
