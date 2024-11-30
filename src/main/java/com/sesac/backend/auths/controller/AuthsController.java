@@ -18,7 +18,8 @@ public class AuthsController {
         try {
             return ResponseEntity.ok(Map.of(
                 "name", auth.getName(),
-                "custom:userType", String.valueOf(auth.getAuthorities())
+                "custom:userType", String.valueOf(auth.getAuthorities()),
+                "full-auth", String.valueOf(auth)
             ));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
