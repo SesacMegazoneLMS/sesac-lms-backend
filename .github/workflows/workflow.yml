@@ -2,9 +2,9 @@ name: CI/CD
 
 on:
   push:
-    branches: ["main_LMS", "develop"]
+    branches: ["main_LMS"]
   pull_request:
-    branches: ["main_LMS", "develop"]
+    branches: ["main_LMS"]
 
 env:
   AWS_REGION: ap-northeast-2                   # AWS 리전 설정
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build:
-    name: Build and Analyze by SonarQube
+    name: Build and Analyze
     runs-on: ubuntu-latest
 
     services:
@@ -65,7 +65,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/lms?characterEncoding=UTF-8
-          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.POSTGRES_USER }}
           SPRING_DATASOURCE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}  # GitHub Secrets에서 가져온 환경 변수
           AWS_COGNITO_USER_POOL_ID: ${{ secrets.AWS_COGNITO_USER_POOL_ID }}
           AWS_COGNITO_REGION: ${{ secrets.AWS_COGNITO_REGION }}
