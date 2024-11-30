@@ -31,7 +31,7 @@ public class JwtTokenProvider {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${aws.cognito.userPoolId}")
+    @Value("${aws.cognito.user-pool-id}")
     private String userPoolId;
 
     @Value("${aws.cognito.region}")
@@ -42,6 +42,9 @@ public class JwtTokenProvider {
     @PostConstruct
     public void init() {
         try {
+            log.info("Initializing JwtTokenProvider");
+            log.info("UserPoolId: {}", userPoolId);
+            log.info("Region: {}", region);
             String jwksUrl = String.format("https://cognito-idp.%s.amazonaws.com/%s/.well-known/jwks.json",
                 region, userPoolId);
             publicKey = loadPublicKeyFromJwks(jwksUrl);
