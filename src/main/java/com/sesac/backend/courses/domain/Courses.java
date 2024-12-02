@@ -2,10 +2,7 @@ package com.sesac.backend.courses.domain;
 
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.UUID;
 import lombok.*;
@@ -21,7 +18,7 @@ public class Courses {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long courseId;
+    private Long coursesId;
     private UUID instructorId;
     private String title;
     private String description;
