@@ -1,4 +1,4 @@
-package com.sesac.backend.courses.dto;
+package com.sesac.backend.boards.dto.response;
 
 import lombok.*;
 
@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CourseDto {
+public class BoardResponse {
 
+    private Long id;
 }

@@ -1,4 +1,4 @@
-package com.sesac.backend.orders.dto;
+package com.sesac.backend.enrollments.dto.request;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderDto {
+public class EnrollmentRequest {
 
     private Long id;
 }

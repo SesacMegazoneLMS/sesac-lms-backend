@@ -1,4 +1,4 @@
-package com.sesac.backend.carts.dto;
+package com.sesac.backend.enrollments.dto.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,7 +14,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CartDto {
+public class EnrollmentResponse {
 
     private Long id;
 }

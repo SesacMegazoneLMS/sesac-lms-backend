@@ -1,4 +1,4 @@
-package com.sesac.backend.sections.dto;
+package com.sesac.backend.orders.dto.response;
 
 import lombok.*;
 
@@ -8,6 +8,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SectionDto {
+public class OrderResponse {
 
+    private Long id;
 }
