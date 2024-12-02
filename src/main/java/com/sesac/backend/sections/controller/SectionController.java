@@ -1,6 +1,6 @@
 package com.sesac.backend.sections.controller;
 
-import com.sesac.backend.sections.service.SectionsService;
+import com.sesac.backend.sections.service.SectionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -8,11 +8,11 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequestMapping("/sections")
 @RestController
-public class SectionsController {
+public class SectionController {
 
-    private final SectionsService sectionsService;
+    private final SectionService sectionService;
 
-    public SectionsController(SectionsService sectionsService) {
-        this.sectionsService = sectionsService;
+    public SectionController(SectionService sectionService) {
+        this.sectionService = sectionService;
     }
 }

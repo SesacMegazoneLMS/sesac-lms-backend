@@ -8,6 +8,6 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CoursesDto {
+public class CourseDto {
 
 }
