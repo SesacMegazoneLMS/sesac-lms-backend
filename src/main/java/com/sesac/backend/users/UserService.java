@@ -1,6 +1,8 @@
 package com.sesac.backend.users;
 
 import java.util.List;
+import java.util.UUID;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -22,7 +24,7 @@ public class UserService {
     }
 
     // 단일 사용자 조회
-    public UserDto getUser(String userId) {
+    public UserDto getUser(UUID userId) {
         String url = baseUrl + "/users/" + userId;
         return restTemplate.getForObject(url, UserDto.class);
     }
