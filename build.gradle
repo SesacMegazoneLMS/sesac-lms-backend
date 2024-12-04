@@ -44,6 +44,11 @@ dependencies {
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
+
+    // Hibernate Core 추가
+    implementation 'org.hibernate:hibernate-core:5.4.0.Final' // 사용 중인 Hibernate 버전에 맞게 조정
+    // JSONB 지원을 위한 Hibernate Types
+    implementation 'com.vladmihalcea:hibernate-types-52:2.20.0'
 }
 
 tasks.named('test') {
