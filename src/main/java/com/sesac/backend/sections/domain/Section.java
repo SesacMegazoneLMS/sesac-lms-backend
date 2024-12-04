@@ -19,11 +19,13 @@ public class Section {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String title;
+    private Integer orderIndex;  // 섹션 순서
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false)
+    @JoinColumn(name = "course_id")
     private Course course;
-    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany(mappedBy = "section", cascade = CascadeType.ALL)
     private List<Lecture> lectures = new ArrayList<>();
-    private String sectionName;
-    private Integer sectionOrder;
 }

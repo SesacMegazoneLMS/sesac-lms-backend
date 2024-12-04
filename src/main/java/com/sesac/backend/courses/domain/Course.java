@@ -22,14 +22,34 @@ public class Course {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Section> sections = new ArrayList<>();
-    private UUID instructorId;
+    private UUID instructorId;  // Lambda API를 통해 조회할 User ID
+
     private String title;
     private String description;
+
+    @Enumerated(EnumType.STRING)
     private Level level;
+
+    @Enumerated(EnumType.STRING)
     private Category category;
+
     private BigDecimal price;
     private String thumbnail;
     private BigDecimal rating;
+    private Integer students;
+    private Integer totalLectures;
+    private String totalHours;
+    private String lastUpdated;
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
+    private List<Section> sections = new ArrayList<>();
+
+    @ElementCollection
+    private List<String> objectives = new ArrayList<>();
+
+    @ElementCollection
+    private List<String> requirements = new ArrayList<>();
+
+    @ElementCollection
+    private List<String> skills = new ArrayList<>();
 }

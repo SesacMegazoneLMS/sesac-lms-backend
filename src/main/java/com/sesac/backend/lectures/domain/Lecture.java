@@ -16,10 +16,13 @@ public class Lecture {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "section_id", nullable = false)
-    private Section section;
     private String title;
-    private String description;
-    private String fileName;
+    private String duration;
+    private Boolean isFree;
+    private String videoUrl;
+    private Integer orderIndex;  // 강의 순서
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "section_id")
+    private Section section;
 }
