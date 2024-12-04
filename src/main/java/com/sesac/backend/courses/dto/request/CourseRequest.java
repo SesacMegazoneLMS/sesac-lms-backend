@@ -1,6 +1,14 @@
 package com.sesac.backend.courses.dto.request;
 
+import com.sesac.backend.courses.enums.Category;
+import com.sesac.backend.courses.enums.Level;
+import com.sesac.backend.lectures.domain.Lecture;
+import jakarta.persistence.ElementCollection;
 import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -11,4 +19,24 @@ import lombok.*;
 public class CourseRequest {
 
     private Long id;
+
+    private String title;
+
+    private String description;
+
+    private String level;
+
+    private String category;
+
+    private BigDecimal price;
+
+    private String thumbnail;
+
+    private List<String> objectives = new ArrayList<>();
+
+    private List<String> requirements = new ArrayList<>();
+
+    private List<String> skills = new ArrayList<>();
+
+    private List<Lecture> lectures = new ArrayList<>();
 }

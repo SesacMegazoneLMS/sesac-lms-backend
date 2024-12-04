@@ -1,8 +1,10 @@
 package com.sesac.backend.courses.domain;
 
+import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
-import com.sesac.backend.sections.domain.Section;
+import com.sesac.backend.lectures.domain.Lecture;
+import com.sesac.backend.users.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -12,19 +14,24 @@ import lombok.*;
 
 @Getter
 @Setter
-@ToString(exclude = "sections")
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Course {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user_Id", "title"}))
+public class Course extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private UUID instructorId;  // Lambda API를 통해 조회할 User ID
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_Id")
+    private User user;
 
     private String title;
+
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -35,14 +42,6 @@ public class Course {
 
     private BigDecimal price;
     private String thumbnail;
-    private BigDecimal rating;
-    private Integer students;
-    private Integer totalLectures;
-    private String totalHours;
-    private String lastUpdated;
-
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Section> sections = new ArrayList<>();
 
     @ElementCollection
     private List<String> objectives = new ArrayList<>();
@@ -52,4 +51,7 @@ public class Course {
 
     @ElementCollection
     private List<String> skills = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Lecture> lectures = new ArrayList<>();
 }
