@@ -36,10 +36,13 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
+            .securityContext(context -> context
+                .requireExplicitSave(false)  // 비동기 처리시 SecurityContext 자동 전파
+            )
             .authorizeHttpRequests(auth ->
                 auth
                     .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
-                    .requestMatchers(STUDENTS_API, "/tests/**").hasRole("STUDENT")
+                    .requestMatchers(STUDENTS_API).hasRole("STUDENT")
                     .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
                     .anyRequest().authenticated()
             )
