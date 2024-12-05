@@ -22,7 +22,7 @@ public class Lecture {
     private Course course; // 강의가 속한 코스
     private String title; // 강의 제목
     private String duration; // 강의 시간 //
-//    private String videoUrl; // 강의 비디오 URL
+    private Boolean isFree;
     private Integer orderIndex;  // 강의 순서
 
     private String videoKey;      // S3 객체 키 //
