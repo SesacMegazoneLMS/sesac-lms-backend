@@ -1,7 +1,7 @@
 package com.sesac.backend.enrollments.domain;
 
 import com.sesac.backend.orders.domain.OrderedCourses;
-import com.sesac.backend.users.User;
+import com.sesac.backend.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

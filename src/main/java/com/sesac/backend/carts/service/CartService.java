@@ -10,8 +10,8 @@ import com.sesac.backend.carts.exception.CartNotFoundException;
 import com.sesac.backend.carts.repository.CartRepository;
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.repository.CourseRepository;
-import com.sesac.backend.users.User;
-import com.sesac.backend.users.UserRepository;
+import com.sesac.backend.users.domain.User;
+import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

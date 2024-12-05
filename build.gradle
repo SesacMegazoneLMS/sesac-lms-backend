@@ -29,7 +29,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-webflux'
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'io.projectreactor:reactor-test'
     compileOnly 'org.projectlombok:lombok'
@@ -45,10 +44,11 @@ dependencies {
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-    // Hibernate Core 추가
-    implementation 'org.hibernate:hibernate-core:5.4.0.Final' // 사용 중인 Hibernate 버전에 맞게 조정
-    // JSONB 지원을 위한 Hibernate Types
-    implementation 'com.vladmihalcea:hibernate-types-52:2.20.0'
+    // https://mvnrepository.com/artifact/org.hibernate/hibernate-core
+    implementation group: 'org.hibernate', name: 'hibernate-core', version: '6.3.1.Final', ext: 'pom'
+
+    // https://mvnrepository.com/artifact/com.vladmihalcea/hibernate-types-60
+    implementation group: 'com.vladmihalcea', name: 'hibernate-types-60', version: '2.20.0'
 }
 
 tasks.named('test') {

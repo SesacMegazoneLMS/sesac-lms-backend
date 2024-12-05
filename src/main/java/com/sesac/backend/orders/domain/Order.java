@@ -1,7 +1,7 @@
 package com.sesac.backend.orders.domain;
 
 import com.sesac.backend.orders.constants.OrderStatus;
-import com.sesac.backend.users.User;
+import com.sesac.backend.users.domain.User;
 import jakarta.persistence.*;
 import lombok.*;
 

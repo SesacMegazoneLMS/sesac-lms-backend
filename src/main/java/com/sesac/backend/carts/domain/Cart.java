@@ -1,13 +1,11 @@
 package com.sesac.backend.carts.domain;
 
-import com.sesac.backend.users.User;
+import com.sesac.backend.users.domain.User;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-
 
 @Getter
 @Setter
@@ -16,7 +14,6 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@TypeDef(name="jsonb", typeClass = JsonBinaryType.class)
 public class Cart {
 
     @Id
@@ -27,7 +24,7 @@ public class Cart {
     @JoinColumn(name = "user_Id")
     private User user;
 
-    @Type(type = "jsonb")
+    @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     private JsonNode cartInfo;
     // userId, courseId,
