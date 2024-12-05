@@ -11,7 +11,7 @@ import java.util.Set;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, Long> {
 
-    Optional<Course> findByUserAndId(User user, Long id);
+    Optional<Course> findByUserAndCourseId(User user, Long courseId);
 
-    Optional<Course> deleteByUserAndId(User user, Long id);
+    Optional<Course> deleteByUserAndCourseId(User user, Long courseId);
 }

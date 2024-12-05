@@ -74,7 +74,7 @@ public class CartService {
         ObjectMapper objectMapper = new ObjectMapper();
 
         ObjectNode newCourse = objectMapper.createObjectNode();
-        newCourse.put("courseId", course.getId());
+        newCourse.put("courseId", course.getCourseId());
         newCourse.set("instructorName", TextNode.valueOf(course.getUser().getName()));
         newCourse.put("title", course.getTitle());
         newCourse.put("price", course.getPrice());

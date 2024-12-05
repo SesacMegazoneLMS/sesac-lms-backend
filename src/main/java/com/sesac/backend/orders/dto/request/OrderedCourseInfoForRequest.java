@@ -2,19 +2,15 @@ package com.sesac.backend.orders.dto.request;
 
 import lombok.*;
 
-import java.util.List;
-
 @Getter
 @Setter
 @ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class OrderRequest {
+public class OrderedCourseInfoForRequest {
 
-    private Long userId;
+    private Long courseId;
 
-    private List<OrderedCourseInfoForRequest> courses;
-
-    private Integer totalAmount;
+    private Integer price;
 }

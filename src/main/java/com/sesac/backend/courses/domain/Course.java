@@ -19,15 +19,15 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"user_Id", "title"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"id", "title"}))
 public class Course extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long courseId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_Id")
+    @JoinColumn(name = "id")
     private User user;
 
     @Column(nullable = false)

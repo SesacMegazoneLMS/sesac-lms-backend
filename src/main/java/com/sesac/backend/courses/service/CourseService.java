@@ -89,7 +89,7 @@ public class CourseService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
-        Course course = courseRepository.findByUserAndId(user, courseId).orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
+        Course course = courseRepository.findByUserAndCourseId(user, courseId).orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
 
         course.setTitle(course.getTitle());
         course.setDescription(course.getDescription());
@@ -109,7 +109,6 @@ public class CourseService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
-        courseRepository.deleteByUserAndId(user, courseId);
-
+        courseRepository.deleteByUserAndCourseId(user, courseId);
     }
 }

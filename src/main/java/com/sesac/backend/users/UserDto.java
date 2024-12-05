@@ -11,6 +11,7 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDto {
 
+    private Long id;
     private UUID user_id;
     private String email;
     private String address;

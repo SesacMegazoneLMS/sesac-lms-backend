@@ -1,6 +1,7 @@
 package com.sesac.backend.enrollments.domain;
 
-import com.sesac.backend.courses.domain.Course;
+import com.sesac.backend.orders.domain.OrderedCourses;
+import com.sesac.backend.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -15,12 +16,15 @@ public class Enrollment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long enrollmentId;
 
-    //User entity 참조 필요 -> 수강 User에 대한 정보
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id")
+    private User user;
 
-    // Course의 User를 가져오면 강사에 대한 정보를 가져올 수 있음
-    @ManyToOne
-    @JoinColumn(name = "course_id")
-    private Course course;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "orderedCoursesId")
+    private OrderedCourses orderedCourses;
+
+    private boolean isActive;
 }
