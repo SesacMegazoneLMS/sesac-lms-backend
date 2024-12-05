@@ -9,6 +9,12 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LectureRequest {
-
-    private Long id;
+    private Long courseId;
+    private String title;
+    private String videoKey;
+    private Integer orderIndex;
+    private String duration;
+    private String hlsUrl;
+    private String status;
+    
 }

@@ -2,7 +2,6 @@ package com.sesac.backend.courses.domain;
 
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
-import com.sesac.backend.sections.domain.Section;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -41,8 +40,7 @@ public class Course {
     private String totalHours;
     private String lastUpdated;
 
-    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL)
-    private List<Section> sections = new ArrayList<>();
+
 
     @ElementCollection
     private List<String> objectives = new ArrayList<>();
