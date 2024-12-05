@@ -21,8 +21,4 @@ public class Lecture {
     private Boolean isFree;
     private String videoUrl;
     private Integer orderIndex;  // 강의 순서
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "section_id")
-    private Section section;
 }
