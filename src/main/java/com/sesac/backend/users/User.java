@@ -19,7 +19,7 @@ public class User {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private UUID user_Id;
+    private UUID user_id;
 
     private String email;
 

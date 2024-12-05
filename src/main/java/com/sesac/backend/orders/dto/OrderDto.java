@@ -1,6 +1,7 @@
-package com.sesac.backend.orders.domain;
+package com.sesac.backend.orders.dto;
 
 import com.sesac.backend.orders.constants.OrderStatus;
+import com.sesac.backend.orders.domain.OrderedCourses;
 import com.sesac.backend.users.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,29 +11,21 @@ import java.util.List;
 
 @Getter
 @Setter
-@ToString(exclude = {"payment", "orderedCourses"})
+@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
-public class Order {
+public class OrderDto {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
 
-    @Column(unique = true)
     private String merchantUid;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
-    private User user;
+    private Long userId;
 
     private Integer totalAmount;
 
-    @Enumerated(EnumType.STRING)
-    private OrderStatus orderStatus;
+    private String orderStatus;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderedCourses> orderedCourses = new ArrayList<>();
 }

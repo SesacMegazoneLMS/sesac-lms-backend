@@ -25,14 +25,14 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    private final UUID USER_ID = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
-
     @PostMapping("")
-    public ResponseEntity<?> createCourse(@RequestBody CourseRequest request) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseRequest request, Authentication authentication) {
+
+        UUID userId = UUID.fromString(authentication.getName());
 
         try {
 
-            courseService.createCourse(USER_ID, request);
+            courseService.createCourse(userId, request);
 
             return ResponseEntity.ok(Map.of(
                     "message", "강의 생성이 완료되었습니다"
@@ -87,11 +87,13 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable Long courseId, @RequestBody CourseRequest request) {
+    public ResponseEntity<?> updateCourse(@PathVariable Long courseId, @RequestBody CourseRequest request, Authentication authentication) {
+
+        UUID userId = UUID.fromString(authentication.getName());
 
         try {
 
-            courseService.updateCourse(courseId, USER_ID, request);
+            courseService.updateCourse(courseId, userId, request);
 
             return ResponseEntity.ok(Map.of(
                     "message", "강의 수정이 완료되었습니다"
@@ -111,11 +113,13 @@ public class CourseController {
     }
 
     @DeleteMapping("/{courseId}")
-    public ResponseEntity<?> deleteCourse(@PathVariable Long courseId) {
+    public ResponseEntity<?> deleteCourse(@PathVariable Long courseId, Authentication authentication) {
+
+        UUID userId = UUID.fromString(authentication.getName());
 
         try {
 
-            courseService.deleteCourse(courseId, USER_ID);
+            courseService.deleteCourse(courseId, userId);
 
             return ResponseEntity.ok(Map.of(
                     "message", "강의가 삭제되었습니다"
