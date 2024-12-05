@@ -1,8 +1,8 @@
 package com.sesac.backend.reviews.domain;
 
 import com.sesac.backend.courses.domain.Course;
+import com.sesac.backend.users.domain.User;
 import jakarta.persistence.*;
-import java.util.UUID;
 import lombok.*;
 
 @Getter
@@ -17,7 +17,10 @@ public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private UUID userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id", nullable = false)
+    private User writer;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
