@@ -1,6 +1,5 @@
 package com.sesac.backend.lectures.domain;
 
-import com.sesac.backend.sections.domain.Section;
 import jakarta.persistence.*;
 import lombok.*;
 
