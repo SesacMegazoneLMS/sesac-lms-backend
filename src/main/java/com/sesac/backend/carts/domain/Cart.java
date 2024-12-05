@@ -1,5 +1,6 @@
 package com.sesac.backend.carts.domain;
 
+import com.sesac.backend.users.User;
 import jakarta.persistence.*;
 import lombok.*;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,8 +23,12 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_Id")
+    private User user;
+
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb")
     private JsonNode cartInfo;
-
+    // userId, courseId,
 }

@@ -19,7 +19,7 @@ public class User {
     private Long id;
 
     @Column(unique = true, nullable = false)
-    private UUID user_Id;
+    private UUID userId;
 
     private String email;
 
@@ -27,11 +27,11 @@ public class User {
 
     private String name;
 
-    private String phone_number;
+    private String phoneNumber;
 
-    private String created_at;
+    private String createdAt;
 
-    private String updated_at;
+    private String updatedAt;
 
     private String userType;
 }
