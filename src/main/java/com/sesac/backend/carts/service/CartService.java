@@ -1,6 +1,7 @@
 package com.sesac.backend.carts.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.sesac.backend.carts.domain.Cart;
@@ -13,11 +14,12 @@ import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
 
 
 @Service
@@ -124,7 +126,9 @@ public class CartService {
     }
     //-----------------------------------------------------------------
 
-    public CartResponse getCart(UUID userId){
+
+    // getCart pagination---------------------------------------------------------------------
+    public CartResponse getCart(UUID userId, int page, int size){
         try{
             User user = userRepository.findByUserId(userId).orElseThrow(
                     () -> new UserPrincipalNotFoundException("로그인을 해주세요"));
@@ -132,12 +136,57 @@ public class CartService {
             Cart cart = cartRepository.findByUser(user).orElseThrow(
                     () -> new CartNotFoundException("장바구니 목록이 없습니다."));
 
+            // 페이징 처리를 위해 장바구니 정보를 가져옴
+            ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
+
+            // cartInfo의 키로 리스트를 생성 -> json에 객체로 담겨있기 때문
+            List<String> keys = new ArrayList<>();
+            cartInfo.fieldNames().forEachRemaining(keys::add);
+
+            // 키 정렬 (필요에 따라 정렬 기준을 설정)
+            Collections.sort(keys);
+
+            // 페이징된 키 리스트 생성
+            List<String> pagedKeys = getPagedKeys(keys, page, size);
+
+            // 다음, 이전 페이지가 호출될 때마다 그에 해당하는 CartResponse 생성
+            ObjectNode filteredCartInfo = new ObjectNode(JsonNodeFactory.instance);
+            for (String key : pagedKeys) {
+                filteredCartInfo.set(key, cartInfo.get(key)); // cartInfo에서 직접 가져옴
+            }
+
             return CartResponse.builder()
-                    .cartInfo(cart.getCartInfo())
+                    .cartInfo(filteredCartInfo)
+                    .totalItems(keys.size())
                     .build();
         } catch (Exception e) {
             throw new RuntimeException("장바구니 목록 호출 실패", e);
         }
     }
+
+    private List<String> getPagedKeys(List<String> keys, int page, int size) {
+        try {
+            // 유효성 검사
+            if (page < 1 || size < 1) {
+                throw new IllegalArgumentException();
+            }
+
+            // 페이징 처리
+            // 시작 인덱스 계산 (index는 0부터 시작하므로 -1을 해 줌)
+            int start = (page - 1) * size;
+
+            // 시작 인덱스가 리스트의 크기를 초과하는 경우
+            if (start >= keys.size()) {
+                throw new IndexOutOfBoundsException();
+            }
+
+            int end = Math.min(start + size, keys.size());
+
+            return keys.subList(start, end);
+        }catch( IndexOutOfBoundsException | IllegalArgumentException e) {
+            throw new IllegalArgumentException("잘못된 페이지 요청입니다.", e);
+        }
+    }
+    //-------------------------------------------------------------------------
 
 }
