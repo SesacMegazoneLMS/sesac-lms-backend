@@ -50,10 +50,10 @@ public class CartService {
             int nextIndex = findNextIndex(cartInfo);
 
             // 새로운 course 정보를 담을 객체 생성
-            ObjectNode newCourse = createCourseNode(course);
+            ObjectNode newItem = createCourseNode(course);
 
             // 순차적 인덱스로 course 추가
-            cartInfo.put(String.valueOf(nextIndex), newCourse);
+            cartInfo.put(String.valueOf(nextIndex), newItem);
 
             cart.setUser(user);
             cart.setCartInfo(cartInfo);
@@ -75,16 +75,16 @@ public class CartService {
     private ObjectNode createCourseNode(Course course) {
         ObjectMapper objectMapper = new ObjectMapper();
 
-        ObjectNode newCourse = objectMapper.createObjectNode();
-        newCourse.put("courseId", course.getCourseId());
-        newCourse.set("instructorName", TextNode.valueOf(course.getUser().getName()));
-        newCourse.put("title", course.getTitle());
-        newCourse.put("price", course.getPrice());
-        newCourse.put("level", course.getLevel().toString());
-        newCourse.put("category", course.getCategory().toString());
-        newCourse.put("thumbnail", course.getThumbnail());
+        ObjectNode newItem = objectMapper.createObjectNode();
+        newItem.put("courseId", course.getCourseId());
+        newItem.set("instructorName", TextNode.valueOf(course.getUser().getName()));
+        newItem.put("title", course.getTitle());
+        newItem.put("price", course.getPrice());
+        newItem.put("level", course.getLevel().toString());
+        newItem.put("category", course.getCategory().toString());
+        newItem.put("thumbnail", course.getThumbnail());
 
-        return newCourse;
+        return newItem;
     }
     //--------------------------------------------------------------
 

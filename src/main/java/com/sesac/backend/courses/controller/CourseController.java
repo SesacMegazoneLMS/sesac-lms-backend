@@ -1,5 +1,6 @@
 package com.sesac.backend.courses.controller;
 
+import com.sesac.backend.audit.CurrentUser;
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.request.CourseRequest;
 import com.sesac.backend.courses.service.CourseService;
@@ -26,30 +27,34 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("")
-    public ResponseEntity<?> createCourse(@RequestBody CourseRequest request, Authentication authentication) {
+    //public ResponseEntity<?> createCourse(@RequestBody CourseRequest request, Authentication authentication) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseRequest request, @CurrentUser UUID USER_ID) {
 
-        UUID userId = UUID.fromString(authentication.getName());
+        //UUID userId = UUID.fromString(authentication.getName());
 
-        try {
+        System.out.println("userId : " + USER_ID);
 
-            courseService.createCourse(userId, request);
+//        try {
+//
+//            courseService.createCourse(userId, request);
+//
+//            return ResponseEntity.ok(Map.of(
+//                    "message", "강의 생성이 완료되었습니다"
+//            ));
+//
+//        } catch (PersistenceException e) {
+//            return ResponseEntity.badRequest().body(Map.of(
+//                    "message", "동일한 이름의 강의가 존재합니다"
+//            ));
+//        } catch (RuntimeException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+//                    "message", e.getMessage()
+//            ));
+//        } catch (Exception e) {
+//            return ResponseEntity.badRequest().build();
+//        }
 
-            return ResponseEntity.ok(Map.of(
-                    "message", "강의 생성이 완료되었습니다"
-            ));
-
-        } catch (PersistenceException e) {
-            return ResponseEntity.badRequest().body(Map.of(
-                    "message", "동일한 이름의 강의가 존재합니다"
-            ));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-                    "message", e.getMessage()
-            ));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().build();
-        }
-
+        return null;
     }
 
     @GetMapping("")

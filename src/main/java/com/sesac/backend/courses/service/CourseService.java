@@ -31,7 +31,7 @@ public class CourseService {
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .level(Level.from(request.getLevel()))
-                .category(Category.valueOf(request.getCategory()))
+                .category(Category.valueOf(request.getCategory().toUpperCase()))
                 .price(request.getPrice())
                 .thumbnail(request.getThumbnail())
                 .objectives(request.getObjectives())
