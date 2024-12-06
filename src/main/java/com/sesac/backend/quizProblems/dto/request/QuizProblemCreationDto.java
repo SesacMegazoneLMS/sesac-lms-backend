@@ -19,7 +19,7 @@ public class QuizProblemCreationDto {
 
     private Difficulty difficulty;
 
-    private Answer answer;
+    private Answer correctAnswer;
 
     private List<String> choices;
 }
