@@ -9,10 +9,12 @@ import com.sesac.backend.quizProblems.dto.request.QuizProblemCreationDto;
 import com.sesac.backend.quizzes.domain.Quiz;
 import com.sesac.backend.quizzes.dto.request.QuizCreationRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
+import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
 import com.sesac.backend.quizzes.repository.QuizRepository;
 import com.sesac.backend.users.domain.User;
 import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -61,5 +63,27 @@ public class QuizService {
     private Quiz creationRequestToQuiz(QuizCreationRequest request, Course course, User student) {
         return Quiz.builder().quizNumber(request.getQuizNumber()).course(course).student(student)
             .startTime(request.getStartTime()).endTime(request.getEndTime()).build();
+    }
+
+    /**
+     * 내 퀴즈 조회
+     *
+     * @param courseId
+     * @param userId
+     * @return List<QuizReadResponse>
+     */
+    public List<QuizReadResponse> findMyQuizzes(Long courseId, UUID userId) {
+        Course course = courseRepository.findById(courseId).orElseThrow(RuntimeException::new);
+
+        return quizRepository.findAllByStudentUserIdAndCourseId(userId, courseId)
+            .stream().map(entity -> quizToResponse(entity, course)).toList();
+    }
+
+    private QuizReadResponse quizToResponse(Quiz quiz, Course course) {
+        return QuizReadResponse.builder().id(quiz.getId()).title(generateQuizTitle(quiz, course)).build();
+    }
+
+    private String generateQuizTitle(Quiz quiz, Course course) {
+        return course.getTitle() + " 퀴즈" + quiz.getQuizNumber();
     }
 }
