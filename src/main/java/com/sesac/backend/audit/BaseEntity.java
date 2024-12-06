@@ -15,10 +15,10 @@ public abstract class BaseEntity extends BaseTimeEntity {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private Long id;
-//
+
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "user_id", nullable = false)
-//    User user;
+//    private User user;
 
     @CreatedBy
     private String createdBy;
