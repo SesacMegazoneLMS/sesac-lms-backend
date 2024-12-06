@@ -1,5 +1,6 @@
 package com.sesac.backend.payments.domain;
 
+import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.orders.domain.Order;
 import com.sesac.backend.payments.constants.PaymentStatus;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Payment {
+public class Payment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
