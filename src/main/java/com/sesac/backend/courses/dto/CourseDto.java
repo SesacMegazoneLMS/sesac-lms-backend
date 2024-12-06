@@ -1,9 +1,6 @@
-package com.sesac.backend.courses.dto.request;
+package com.sesac.backend.courses.dto;
 
-import com.sesac.backend.courses.enums.Category;
-import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.lectures.domain.Lecture;
-import jakarta.persistence.ElementCollection;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -16,7 +13,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CourseRequest {
+public class CourseDto {
 
     private Long id;
 

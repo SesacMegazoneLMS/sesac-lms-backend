@@ -16,7 +16,7 @@ public class PortOnePayment {
 
     private String status;
 
-    private String name;
+    private String buyer_name;
 
     private Integer amount;
 
