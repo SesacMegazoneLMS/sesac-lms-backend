@@ -35,7 +35,7 @@ public class User {
     private String address;
     private String name;
     private String phoneNumber;
-    private Date createdAt;
-    private Date updatedAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String userType;
 }
