@@ -15,6 +15,7 @@ public class Users {
     @Id
     private long id;
     private UUID user_id;
+
     private String email;
     private String address;
     private String name;
