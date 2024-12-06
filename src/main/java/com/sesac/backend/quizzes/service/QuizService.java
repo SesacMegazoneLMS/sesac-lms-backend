@@ -25,6 +25,12 @@ public class QuizService {
     private final CourseRepository courseRepository;
     private final EnrollmentRepository enrollmentRepository;
 
+    /**
+     * 퀴즈 생성
+     *
+     * @param request
+     * @return QuizCreationResponse
+     */
     public QuizCreationResponse createQuiz(QuizCreationRequest request) {
         Course course = courseRepository.findById(request.getCourseId())
             .orElseThrow(RuntimeException::new);
