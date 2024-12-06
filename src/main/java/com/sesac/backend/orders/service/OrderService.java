@@ -9,8 +9,8 @@ import com.sesac.backend.orders.dto.request.OrderRequest;
 import com.sesac.backend.orders.dto.request.OrderedCourseInfoForRequest;
 import com.sesac.backend.orders.dto.response.OrderResponse;
 import com.sesac.backend.orders.repository.OrderRepository;
-import com.sesac.backend.users.User;
-import com.sesac.backend.users.UserRepository;
+import com.sesac.backend.users.domain.User;
+import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest, UUID userId) {
 
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
         // 주문 생성
         Order order = Order.builder()

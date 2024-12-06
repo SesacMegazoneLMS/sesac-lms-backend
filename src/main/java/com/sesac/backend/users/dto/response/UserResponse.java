@@ -1,5 +1,6 @@
-package com.sesac.backend.users;
+package com.sesac.backend.users.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.*;
 
@@ -7,17 +8,17 @@ import lombok.*;
 @Setter
 @ToString
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserDto {
+@AllArgsConstructor
+public class UserResponse {
 
     private Long id;
-    private UUID user_id;
+    private UUID userId;
     private String email;
     private String address;
     private String name;
-    private String phone_number;
-    private String created_at;
-    private String updated_at;
+    private String phoneNumber;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String userType;
 }

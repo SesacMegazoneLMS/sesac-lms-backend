@@ -1,8 +1,9 @@
-package com.sesac.backend.users;
+package com.sesac.backend.users.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -17,21 +18,14 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(unique = true, nullable = false)
-    private UUID user_id;
+    private UUID userId;
 
     private String email;
-
     private String address;
-
     private String name;
-
-    private String phone_number;
-
-    private String created_at;
-
-    private String updated_at;
-
+    private String phoneNumber;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private String userType;
 }

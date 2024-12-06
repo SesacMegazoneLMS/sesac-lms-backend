@@ -1,9 +1,6 @@
 package com.sesac.backend.orders.dto;
 
-import com.sesac.backend.orders.constants.OrderStatus;
 import com.sesac.backend.orders.domain.OrderedCourses;
-import com.sesac.backend.users.User;
-import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.ArrayList;
