@@ -77,7 +77,7 @@ public class CartService {
 
         ObjectNode newItem = objectMapper.createObjectNode();
         newItem.put("courseId", course.getId());
-        newItem.set("instructorName", TextNode.valueOf(course.getInstructor().getName()));
+        newItem.set("instructorName", TextNode.valueOf(course.getInstructor().getNickname()));
         newItem.put("title", course.getTitle());
         newItem.put("price", course.getPrice());
         newItem.put("level", course.getLevel().toString());
