@@ -1,5 +1,6 @@
 package com.sesac.backend.orders.domain;
 
+import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.orders.constants.OrderStatus;
 import com.sesac.backend.users.User;
 import jakarta.persistence.*;
@@ -15,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Order {
+public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
