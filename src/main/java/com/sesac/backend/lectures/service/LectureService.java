@@ -10,29 +10,41 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+// 서비스 클래스 어노테이션
 @Service
+// 모든 필드를 포함하는 생성자 생성
 @AllArgsConstructor
+// 트랜잭션 관리
 @Transactional
 public class LectureService {
 
+    // 강의 및 코스 리포지토리 의존성 주입
     private final LectureRepository lectureRepository;
     private final CourseRepository courseRepository;
 
 
+    // 비디오 상태 업데이트 메서드
     @Transactional
-    public void updateVideoStatus(String videoKey, String hlsUrl, String status) {
-        Lecture lecture = lectureRepository.findByVideoKey(videoKey)
+    public void updateVideoStatus(Long Id,String videoKey, String hlsUrl, String status) {
+        // 비디오 키로 강의 조회
+        Lecture lecture = lectureRepository.findById(Id)
             .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다: " + videoKey));
         
+        // HLS URL 및 상태 업데이트
         lecture.setHlsUrl(hlsUrl);
         lecture.setStatus(status);
+        lecture.setVideoKey(videoKey);
+        // 강의 저장
         lectureRepository.save(lecture);
     }
 
+    // 강의 생성 메서드
     public LectureResponse createLecture(LectureRequest request) {
+        // 코스 ID로 코스 조회
         Course course = courseRepository.findById(request.getCourseId())
             .orElseThrow(() -> new IllegalArgumentException("코스를 찾을 수 없습니다."));
 
+        // 강의 객체 생성 및 저장
         Lecture lecture = Lecture.builder()
             .course(course)
             .title(request.getTitle())
@@ -42,6 +54,7 @@ public class LectureService {
             .build();
 
         lecture = lectureRepository.save(lecture);
+        // 강의 ID를 포함한 응답 반환
         return new LectureResponse(lecture.getId());
     }
 }
