@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: backend
+
+  jpa:
+    generate-ddl: true
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        default_schema: public
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://rds-lms.cta4egc6ioti.ap-northeast-2.rds.amazonaws.com:5432/lms?characterEncoding=UTF-8
+    username: postgres
+    password: popost!!
+
+server:
+  port: 8081
+
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+    context-path: /api
+
+  tomcat:
+    threads:
+      max: 200
+    max-connections: 8192
+    accept-count: 100
+
+# AWS Configure
+aws:
+  cognito:
+    user-pool-id: ap-northeast-2_78HNDcTxY
+    region: ap-northeast-2
+
+# CORS Configure
+cors:
+  allowed-origins:
+    http://localhost:3000, https://localhost:3000
+
+# API
+api:
+  user-service: https://y7jjgx2p3f.execute-api.ap-northeast-2.amazonaws.com/lms
+
+# Swagger UI 설정
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json

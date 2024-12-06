@@ -1,6 +1,6 @@
 package com.sesac.backend.users.validation;
 
-import com.sesac.backend.users.anotation.ValidUUID;
+import com.sesac.backend.users.annotation.ValidUUID;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.UUID;

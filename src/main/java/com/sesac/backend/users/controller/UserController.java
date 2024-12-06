@@ -1,13 +1,11 @@
-package com.sesac.backend.users;
+package com.sesac.backend.users.controller;
 
-import java.util.List;
 import java.util.UUID;
 
-import com.sesac.backend.auths.constants.SecurityConstants;
-import io.jsonwebtoken.lang.Assert;
+import com.sesac.backend.users.dto.PutUserProfileDto;
+import com.sesac.backend.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,10 +21,10 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    public ResponseEntity<UserDto> getUserProfile() {
+    public ResponseEntity<PutUserProfileDto> getUserProfile() {
         UUID userId = UUID.fromString(SecurityContextHolder.getContext().getAuthentication().getName());
         try {
-            UserDto user = userService.getUser(userId);
+            PutUserProfileDto user = userService.getUser(userId);
             return ResponseEntity.ok(user);
         }catch(IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
@@ -37,11 +35,11 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<UserDto> updateUserProfile(UserDto user) {
+    public ResponseEntity<PutUserProfileDto> updateUserProfile(PutUserProfileDto user) {
         try {
             UUID userId = UUID.fromString(
                     SecurityContextHolder.getContext().getAuthentication().getName());
-            UserDto userprofile = userService.getUser(userId);
+            PutUserProfileDto userprofile = userService.getUser(userId);
             return ResponseEntity.ok(userprofile);
         }catch(IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();

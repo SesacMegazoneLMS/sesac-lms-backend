@@ -1,4 +1,4 @@
-package com.sesac.backend.users.anotation;
+package com.sesac.backend.users.annotation;
 
 import jakarta.validation.Constraint;
 import org.hibernate.validator.internal.constraintvalidators.hv.UUIDValidator;
