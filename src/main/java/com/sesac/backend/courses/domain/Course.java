@@ -1,15 +1,5 @@
 package com.sesac.backend.courses.domain;
 
-import com.sesac.backend.audit.BaseTimeEntity;
-import com.sesac.backend.courses.enums.Category;
-import com.sesac.backend.courses.enums.Level;
-import com.sesac.backend.users.domain.User;
-import jakarta.persistence.*;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import lombok.*;
-
 import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
