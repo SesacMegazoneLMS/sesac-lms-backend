@@ -46,7 +46,7 @@ public class CartController {
     }
 
     //장바구니 목록
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<?> getCarts( @CurrentUser UUID USER_ID, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size ) {
         try{
             CartResponse cartResponse = cartService.getCart(USER_ID, page, size);

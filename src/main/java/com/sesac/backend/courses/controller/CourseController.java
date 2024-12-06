@@ -26,6 +26,9 @@ public class CourseController {
 
         UUID userId = UUID.fromString(authentication.getName());
 
+//        System.out.println("userId : " + userId);
+        System.out.println( "요청값 : " + request);
+
         try {
 
             courseService.createCourse(userId, request);
@@ -39,13 +42,14 @@ public class CourseController {
                     "message", "동일한 이름의 강의가 존재합니다"
             ));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+            e.printStackTrace();
+            System.out.println("오류 : " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", e.getMessage()
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
-
     }
 
     @GetMapping("")

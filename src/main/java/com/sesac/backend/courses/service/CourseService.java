@@ -21,13 +21,14 @@ public class CourseService {
 
     private final UserRepository userRepository;
 
-
     public void createCourse(UUID userId, CourseDto request) {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 업습니다"));
 
+        System.out.println("찾은 유저 정보 : " + user);
+
         Course course = Course.builder()
-                .user(user)
+                .instructor(user)
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .level(Level.from(request.getLevel()))
@@ -39,6 +40,8 @@ public class CourseService {
                 .skills(request.getSkills())
                 .lectures(request.getLectures())
                 .build();
+
+        System.out.println("생성할 course 정보 : " + course);
 
         courseRepository.save(course);
     }
@@ -89,7 +92,7 @@ public class CourseService {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
-        Course course = courseRepository.findByUserAndCourseId(user, courseId).orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
+        Course course = courseRepository.findByInstructorAndId(user, courseId).orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
 
         course.setTitle(course.getTitle());
         course.setDescription(course.getDescription());
@@ -109,6 +112,6 @@ public class CourseService {
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
-        courseRepository.deleteByUserAndCourseId(user, courseId);
+        courseRepository.deleteByInstructorAndId(user, courseId);
     }
 }
