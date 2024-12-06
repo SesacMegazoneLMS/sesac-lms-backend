@@ -1,17 +1,13 @@
 package com.sesac.backend.courses.controller;
 
-import com.sesac.backend.courses.domain.Course;
-import com.sesac.backend.courses.dto.request.CourseRequest;
+import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.service.CourseService;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -26,7 +22,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping("")
-    public ResponseEntity<?> createCourse(@RequestBody CourseRequest request, Authentication authentication) {
+    public ResponseEntity<?> createCourse(@RequestBody CourseDto request, Authentication authentication) {
 
         UUID userId = UUID.fromString(authentication.getName());
 
@@ -70,7 +66,7 @@ public class CourseController {
 
         try {
 
-            CourseRequest courseDetails = courseService.getCourseByCourseId(courseId);
+            CourseDto courseDetails = courseService.getCourseByCourseId(courseId);
 
             return ResponseEntity.ok(Map.of(
                     "message", "강의 상세 정보 로드에 성공했습니다",
@@ -87,7 +83,7 @@ public class CourseController {
     }
 
     @PutMapping("/{courseId}")
-    public ResponseEntity<?> updateCourse(@PathVariable Long courseId, @RequestBody CourseRequest request, Authentication authentication) {
+    public ResponseEntity<?> updateCourse(@PathVariable Long courseId, @RequestBody CourseDto request, Authentication authentication) {
 
         UUID userId = UUID.fromString(authentication.getName());
 
