@@ -46,7 +46,7 @@ public class UserService {
     }
 
     public GetUserProfileResponse getUserProfile(UUID uuid) {
-        User user = repo.findByUserId(uuid);
+        User user = repo.findByUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         UserProfile userProfile = new UserProfile(user);
         userProfile.setTechStack(deserializeTechStack(user.getTechStack()));
         return new GetUserProfileResponse("OK",null,null,userProfile);
@@ -54,13 +54,13 @@ public class UserService {
 
 
     public PutProfileResponse updateUserProfile(UUID uuid, UpdateProfileImg img) {
-        User user = repo.findByUserId(uuid);
+        User user = repo.findByUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setProfileImgUrl(img.getProfileImgUrl());
         repo.save(user);
         return new PutProfileResponse("OK",null,"프로필 이미지 변경 성공");
     }
     public PutProfileResponse updateUserProfile(UUID uuid, UpdateProfileInfo info) {
-        User user = repo.findByUserId(uuid);
+        User user = repo.findByUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         user.setNickname(info.getNickname());
         user.setIntroduction(info.getIntroduction());
         user.setTechStack(serializeTechStack(info.getTechStack()));
