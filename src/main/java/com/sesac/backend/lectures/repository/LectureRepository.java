@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
-    Optional<Lecture> findByVideoKey(String videoKey);
+    // Optional<Lecture> findByVideoKey(String videoKey);
 }
