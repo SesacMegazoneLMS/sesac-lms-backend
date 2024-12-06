@@ -2,6 +2,7 @@ package com.sesac.backend.audit;
 
 import jakarta.persistence.*;
 import java.sql.Date;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -21,8 +22,8 @@ public abstract class BaseEntity {
 //    private User user;
 
     @CreatedDate
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 }
