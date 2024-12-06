@@ -11,9 +11,11 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PaymentResponse {
 
-    private Integer code;
+    // 포트원이 제공하는 결제 내역 조회 api
 
-    private String message;
+    private Integer code; // 응답 코드
 
-    private PortOnePayment response;
+    private String message; // 응답 메세지
+
+    private PortOnePayment response; // PaymentAnnotation
 }

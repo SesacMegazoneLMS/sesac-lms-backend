@@ -153,8 +153,10 @@ public class PaymentService {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
+        // PortOne에서 제공하는 결제 내역 API를 통하여 내역 조회
+
         ResponseEntity<PaymentResponse> response = restTemplate.exchange(
-                "https://api.iamport.kr/payments/" + impUid,
+                "https://api.iamport.kr/payments/" + impUid, // PortOne 결제 내역 API 요청 주소
                 HttpMethod.GET,
                 new HttpEntity<>(headers),
                 PaymentResponse.class
