@@ -1,12 +1,7 @@
 package com.sesac.backend.quizProblems.dto.response;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.List;
+import lombok.*;
 
 @Getter
 @Setter
@@ -16,4 +11,11 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class QuizProblemDetailDto {
 
+    private Long problemId;
+
+    private Integer number;
+
+    private String question;
+
+    private List<String> options;
 }
