@@ -2,6 +2,7 @@ package com.sesac.backend.quizProblems.domain;
 
 import com.sesac.backend.quizProblems.enums.Answer;
 import com.sesac.backend.quizProblems.enums.Correctness;
+import com.sesac.backend.quizProblems.enums.Difficulty;
 import com.sesac.backend.quizzes.domain.Quiz;
 import jakarta.persistence.*;
 import java.util.ArrayList;
@@ -44,6 +45,9 @@ public class QuizProblem {
 
     @Column(nullable = false)
     private String question;
+
+    @Column(nullable = false)
+    private Difficulty difficulty = Difficulty.BASIC;
 
     @ElementCollection
     private List<String> choices = new ArrayList<>();

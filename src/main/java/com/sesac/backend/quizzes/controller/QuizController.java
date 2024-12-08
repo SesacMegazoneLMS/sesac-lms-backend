@@ -2,9 +2,11 @@ package com.sesac.backend.quizzes.controller;
 
 import com.sesac.backend.audit.CurrentUser;
 import com.sesac.backend.quizzes.dto.request.QuizCreationRequest;
+import com.sesac.backend.quizzes.dto.request.QuizSubmissionRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
 import com.sesac.backend.quizzes.dto.response.QuizDetailResponse;
 import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
+import com.sesac.backend.quizzes.dto.response.QuizSubmissionResponse;
 import com.sesac.backend.quizzes.service.QuizService;
 import java.util.List;
 import java.util.UUID;
@@ -24,10 +26,12 @@ public class QuizController {
 
     @PostMapping("")
     public ResponseEntity<QuizCreationResponse> createQuiz(
-        @RequestBody final QuizCreationRequest quizCreationRequest) {
+        @RequestBody final QuizCreationRequest quizCreationRequest,
+        @CurrentUser final UUID userId
+    ) {
         try {
             return ResponseEntity.status(HttpStatus.CREATED)
-                .body(quizService.createQuiz(quizCreationRequest));
+                .body(quizService.createQuiz(quizCreationRequest, userId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();
@@ -71,6 +75,19 @@ public class QuizController {
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/submissions")
+    public ResponseEntity<QuizSubmissionResponse> submitQuiz(
+        @RequestBody final QuizSubmissionRequest quizSubmissionRequest,
+        @CurrentUser final UUID userId
+    ) {
+        try {
+            return ResponseEntity.ok(quizService.submitQuiz(quizSubmissionRequest, userId));
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }

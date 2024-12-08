@@ -5,13 +5,18 @@ import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.enrollments.domain.Enrollment;
 import com.sesac.backend.enrollments.repository.EnrollmentRepository;
 import com.sesac.backend.quizProblems.domain.QuizProblem;
+import com.sesac.backend.quizProblems.dto.request.QuizProblemAnswerDto;
 import com.sesac.backend.quizProblems.dto.request.QuizProblemCreationDto;
 import com.sesac.backend.quizProblems.dto.response.QuizProblemDetailDto;
+import com.sesac.backend.quizProblems.enums.Answer;
+import com.sesac.backend.quizProblems.enums.Correctness;
 import com.sesac.backend.quizzes.domain.Quiz;
 import com.sesac.backend.quizzes.dto.request.QuizCreationRequest;
+import com.sesac.backend.quizzes.dto.request.QuizSubmissionRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
 import com.sesac.backend.quizzes.dto.response.QuizDetailResponse;
 import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
+import com.sesac.backend.quizzes.dto.response.QuizSubmissionResponse;
 import com.sesac.backend.quizzes.repository.QuizRepository;
 import com.sesac.backend.users.domain.User;
 import jakarta.transaction.Transactional;
@@ -19,7 +24,10 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +46,13 @@ public class QuizService {
      * @param request
      * @return QuizCreationResponse
      */
-    public QuizCreationResponse createQuiz(QuizCreationRequest request) {
+    public QuizCreationResponse createQuiz(QuizCreationRequest request, UUID userId) {
         Course course = courseRepository.findById(request.getCourseId())
             .orElseThrow(RuntimeException::new);
+
+        if (!course.getInstructor().getUserId().equals(userId)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
 
         List<Quiz> quizzes = enrollmentRepository.findAllByOrderedCoursesCourse(course)
             .stream().map(Enrollment::getUser)
@@ -149,7 +161,7 @@ public class QuizService {
         boolean isInstructor = quiz.getCourse().getInstructor().getUserId().equals(userId);
 
         if (!isStudent && !isInstructor) {
-            throw new RuntimeException("접근 권한이 없습니다.");
+            throw new RuntimeException("권한이 없습니다.");
         }
     }
 
@@ -176,9 +188,74 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(RuntimeException::new);
 
         if (!quiz.getCourse().getInstructor().getUserId().equals(userId)) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+            throw new RuntimeException("권한이 없습니다.");
         }
 
         quizRepository.delete(quiz);
+    }
+
+    /**
+     * 퀴즈 제출 및 채점
+     *
+     * @param request
+     * @param userId
+     * @return QuizSubmissionResponse
+     */
+    public QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request, UUID userId) {
+        Quiz quiz = quizRepository.findById(request.getQuizId()).orElseThrow(RuntimeException::new);
+
+        if (!quiz.getStudent().getUserId().equals(userId)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        if (now.isBefore(quiz.getStartTime()) || now.isAfter(quiz.getEndTime())) {
+            throw new RuntimeException("제출 기한이 아닙니다.");
+        }
+
+        List<QuizProblem> problems = quiz.getQuizProblems().stream()
+            .sorted(Comparator.comparingInt(QuizProblem::getProblemNumber)).toList();
+        List<QuizProblemAnswerDto> answers = getAnswers(request, problems);
+
+        Integer score = IntStream.range(0, problems.size())
+            .map(idx -> {
+                QuizProblem problem = problems.get(idx);
+                QuizProblemAnswerDto answer = answers.get(idx);
+
+                problem.setSelectedAnswer(answer.getSelectedAnswer());
+
+                if (problem.getCorrectAnswer() == answer.getSelectedAnswer()) {
+                    problem.setCorrectness(Correctness.CORRECT);
+                    return problem.getDifficulty().getPoint();
+                }
+
+                problem.setCorrectness(Correctness.WRONG);
+                return 0;
+            }).sum();
+
+        quiz.setQuizProblems(problems);
+        quiz.setScore(score);
+
+        quizRepository.save(quiz);
+
+        return QuizSubmissionResponse.builder().quizId(quiz.getId()).score(score).build();
+    }
+
+    private List<QuizProblemAnswerDto> getAnswers(QuizSubmissionRequest request,
+        List<QuizProblem> problems) {
+        Map<Integer, QuizProblemAnswerDto> answers = request.getAnswers().stream().collect(
+            Collectors.toMap(QuizProblemAnswerDto::getProblemNumber, answer -> answer));
+
+        return problems.stream()
+            .map(problem -> answers.getOrDefault(
+                problem.getProblemNumber(),
+                QuizProblemAnswerDto.builder()
+                    .problemId(problem.getId())
+                    .problemNumber(problem.getProblemNumber())
+                    .selectedAnswer(Answer.NOT_SELECTED)
+                    .build()
+            ))
+            .sorted(Comparator.comparingInt(QuizProblemAnswerDto::getProblemNumber))
+            .toList();
     }
 }

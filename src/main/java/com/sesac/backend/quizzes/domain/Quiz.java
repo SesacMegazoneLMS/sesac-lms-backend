@@ -45,4 +45,6 @@ public class Quiz {
     private LocalDateTime startTime;
 
     private LocalDateTime endTime;
+
+    private Integer score = 0;
 }
