@@ -23,4 +23,12 @@ public interface QuizRepository extends JpaRepository<Quiz, Long> {
     WHERE q.id = :quizId
     """)
     Optional<Quiz> findQuizWithDetails(Long quizId);
+
+    @Query("SELECT q FROM Quiz q " +
+        "JOIN FETCH q.student " +
+        "JOIN FETCH q.course c " +
+        "JOIN FETCH c.instructor " +
+        "JOIN FETCH q.quizProblems " +
+        "WHERE q.id = :quizId")
+    Optional<Quiz> findQuizWithResult(Long quizId);
 }

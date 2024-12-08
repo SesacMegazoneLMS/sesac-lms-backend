@@ -6,6 +6,7 @@ import com.sesac.backend.quizzes.dto.request.QuizSubmissionRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
 import com.sesac.backend.quizzes.dto.response.QuizDetailResponse;
 import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
+import com.sesac.backend.quizzes.dto.response.QuizResultResponse;
 import com.sesac.backend.quizzes.dto.response.QuizSubmissionResponse;
 import com.sesac.backend.quizzes.service.QuizService;
 import java.util.List;
@@ -85,6 +86,19 @@ public class QuizController {
     ) {
         try {
             return ResponseEntity.ok(quizService.submitQuiz(quizSubmissionRequest, userId));
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{quizId}/results")
+    public ResponseEntity<QuizResultResponse> findQuizResult(
+        @PathVariable final Long quizId,
+        @CurrentUser final UUID userId
+    ) {
+        try {
+            return ResponseEntity.ok(quizService.findQuizResult(quizId, userId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();

@@ -8,6 +8,7 @@ import com.sesac.backend.quizProblems.domain.QuizProblem;
 import com.sesac.backend.quizProblems.dto.request.QuizProblemAnswerDto;
 import com.sesac.backend.quizProblems.dto.request.QuizProblemCreationDto;
 import com.sesac.backend.quizProblems.dto.response.QuizProblemDetailDto;
+import com.sesac.backend.quizProblems.dto.response.QuizProblemResultDto;
 import com.sesac.backend.quizProblems.enums.Answer;
 import com.sesac.backend.quizProblems.enums.Correctness;
 import com.sesac.backend.quizzes.domain.Quiz;
@@ -16,6 +17,7 @@ import com.sesac.backend.quizzes.dto.request.QuizSubmissionRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
 import com.sesac.backend.quizzes.dto.response.QuizDetailResponse;
 import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
+import com.sesac.backend.quizzes.dto.response.QuizResultResponse;
 import com.sesac.backend.quizzes.dto.response.QuizSubmissionResponse;
 import com.sesac.backend.quizzes.repository.QuizRepository;
 import com.sesac.backend.users.domain.User;
@@ -257,5 +259,48 @@ public class QuizService {
             ))
             .sorted(Comparator.comparingInt(QuizProblemAnswerDto::getProblemNumber))
             .toList();
+    }
+
+    /**
+     * 퀴즈 결과 조회
+     *
+     * @param quizId
+     * @param userId
+     * @return
+     */
+    public QuizResultResponse findQuizResult(Long quizId, UUID userId) {
+        Quiz quiz = quizRepository.findQuizWithResult(quizId).orElseThrow(RuntimeException::new);
+
+        if (!quiz.getStudent().getUserId().equals(userId)
+            && !quiz.getCourse().getInstructor().getUserId().equals(userId)) {
+            throw new RuntimeException("권한이 없습니다.");
+        }
+
+        return quizToResultResponse(quiz);
+    }
+
+    private QuizResultResponse quizToResultResponse(Quiz quiz) {
+        return QuizResultResponse.builder()
+            .quizId(quiz.getId())
+            .title(generateQuizTitle(quiz))
+            .startTime(quiz.getStartTime())
+            .endTime(quiz.getEndTime())
+            .score(quiz.getScore())
+            .problemResults(quiz.getQuizProblems().stream().map(this::problemToResultDto).sorted(
+                Comparator.comparingInt(QuizProblemResultDto::getNumber)).toList())
+            .build();
+    }
+
+    private QuizProblemResultDto problemToResultDto(QuizProblem quizProblem) {
+        return QuizProblemResultDto.builder()
+            .problemId(quizProblem.getId())
+            .number(quizProblem.getProblemNumber())
+            .correctness(quizProblem.getCorrectness())
+            .difficulty(quizProblem.getDifficulty().getPoint())
+            .correctAnswer(quizProblem.getCorrectAnswer())
+            .selectedAnswer(quizProblem.getSelectedAnswer())
+            .question(quizProblem.getQuestion())
+            .choices(quizProblem.getChoices())
+            .build();
     }
 }
