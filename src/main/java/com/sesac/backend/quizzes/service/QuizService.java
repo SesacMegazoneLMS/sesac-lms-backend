@@ -66,7 +66,7 @@ public class QuizService {
     }
 
     /**
-     * 내 퀴즈 조회
+     * 강좌에서 내 퀴즈 목록 조회
      *
      * @param courseId
      * @param userId
@@ -76,10 +76,10 @@ public class QuizService {
         Course course = courseRepository.findById(courseId).orElseThrow(RuntimeException::new);
 
         return quizRepository.findAllByStudentUserIdAndCourseId(userId, courseId)
-            .stream().map(entity -> quizToResponse(entity, course)).toList();
+            .stream().map(entity -> quizToReadResponse(entity, course)).toList();
     }
 
-    private QuizReadResponse quizToResponse(Quiz quiz, Course course) {
+    private QuizReadResponse quizToReadResponse(Quiz quiz, Course course) {
         return QuizReadResponse.builder().id(quiz.getId()).title(generateQuizTitle(quiz, course)).build();
     }
 
