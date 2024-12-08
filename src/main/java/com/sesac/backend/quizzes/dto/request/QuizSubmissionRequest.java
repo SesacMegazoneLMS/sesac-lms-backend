@@ -1,6 +1,7 @@
-package com.sesac.backend.quizProblems.dto.request;
+package com.sesac.backend.quizzes.dto.request;
 
-import com.sesac.backend.quizProblems.enums.Answer;
+import com.sesac.backend.quizProblems.dto.request.QuizProblemAnswerDto;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,11 +16,9 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class QuizProblemAnswerDto {
+public class QuizSubmissionRequest {
 
-    private Long problemId;
+    private Long quizId;
 
-    private Integer problemNumber;
-
-    private Answer selectedAnswer;
+    private List<QuizProblemAnswerDto> answers;
 }
