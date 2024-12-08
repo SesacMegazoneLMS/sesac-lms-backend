@@ -6,13 +6,17 @@ import com.sesac.backend.enrollments.domain.Enrollment;
 import com.sesac.backend.enrollments.repository.EnrollmentRepository;
 import com.sesac.backend.quizProblems.domain.QuizProblem;
 import com.sesac.backend.quizProblems.dto.request.QuizProblemCreationDto;
+import com.sesac.backend.quizProblems.dto.response.QuizProblemDetailDto;
 import com.sesac.backend.quizzes.domain.Quiz;
 import com.sesac.backend.quizzes.dto.request.QuizCreationRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
+import com.sesac.backend.quizzes.dto.response.QuizDetailResponse;
 import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
 import com.sesac.backend.quizzes.repository.QuizRepository;
 import com.sesac.backend.users.domain.User;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -80,10 +84,81 @@ public class QuizService {
     }
 
     private QuizReadResponse quizToReadResponse(Quiz quiz, Course course) {
-        return QuizReadResponse.builder().id(quiz.getId()).title(generateQuizTitle(quiz, course)).build();
+        return QuizReadResponse.builder().id(quiz.getId()).title(generateQuizTitle(quiz, course))
+            .build();
     }
 
     private String generateQuizTitle(Quiz quiz, Course course) {
         return course.getTitle() + " 퀴즈" + quiz.getQuizNumber();
+    }
+
+    /**
+     * 퀴즈 상세 조회
+     *
+     * @param quizId
+     * @return QuizDetailResponse
+     */
+    public QuizDetailResponse findQuizDetail(Long quizId, UUID userId) {
+        Quiz quiz = quizRepository.findQuizWithDetails(quizId).orElseThrow(RuntimeException::new);
+
+        validateAccess(quiz, userId);
+        validateQuizTime(quiz, userId);
+
+        return quizToDetailResponse(quiz);
+    }
+
+    private QuizDetailResponse quizToDetailResponse(Quiz quiz) {
+        List<QuizProblemDetailDto> problemDetailDtos = quiz.getQuizProblems().stream()
+            .map(this::problemToDetailDto)
+            .toList();
+
+        return QuizDetailResponse.builder()
+            .quizId(quiz.getId())
+            .title(generateQuizTitle(quiz))
+            .duration(getDuration(quiz))
+            .startTime(quiz.getStartTime())
+            .endTime(quiz.getEndTime())
+            .totalQuestions(problemDetailDtos.size())
+            .problems(problemDetailDtos)
+            .build();
+    }
+
+    private String generateQuizTitle(Quiz quiz) {
+        return quiz.getCourse().getTitle() + " 퀴즈" + quiz.getQuizNumber();
+    }
+
+    private String getDuration(Quiz quiz) {
+        return String.valueOf(ChronoUnit.MINUTES.between(quiz.getStartTime(), quiz.getEndTime()));
+    }
+
+    private QuizProblemDetailDto problemToDetailDto(QuizProblem quizProblem) {
+        return QuizProblemDetailDto.builder()
+            .problemId(quizProblem.getId())
+            .number(quizProblem.getProblemNumber())
+            .question(quizProblem.getQuestion())
+            .options(quizProblem.getChoices())
+            .build();
+    }
+
+    private void validateAccess(Quiz quiz, UUID userId) {
+        boolean isStudent = quiz.getStudent().getUserId().equals(userId);
+        boolean isInstructor = quiz.getCourse().getInstructor().getUserId().equals(userId);
+
+        if (!isStudent && !isInstructor) {
+            throw new RuntimeException("접근 권한이 없습니다.");
+        }
+    }
+
+    private void validateQuizTime(Quiz quiz, UUID userId) {
+        if (quiz.getStudent().getUserId().equals(userId)) {
+            LocalDateTime now = LocalDateTime.now();
+            boolean isBeforeQuiz = now.isBefore(quiz.getStartTime());
+            boolean isAfterQuiz = now.isAfter(quiz.getEndTime());
+
+            if (isBeforeQuiz || isAfterQuiz) {
+                throw new RuntimeException("시험 시간이 아닙니다. " +
+                    "시험 시간: " + quiz.getStartTime() + " ~ " + quiz.getEndTime());
+            }
+        }
     }
 }

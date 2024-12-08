@@ -3,6 +3,7 @@ package com.sesac.backend.quizzes.controller;
 import com.sesac.backend.audit.CurrentUser;
 import com.sesac.backend.quizzes.dto.request.QuizCreationRequest;
 import com.sesac.backend.quizzes.dto.response.QuizCreationResponse;
+import com.sesac.backend.quizzes.dto.response.QuizDetailResponse;
 import com.sesac.backend.quizzes.dto.response.QuizReadResponse;
 import com.sesac.backend.quizzes.service.QuizService;
 import java.util.List;
@@ -40,6 +41,19 @@ public class QuizController {
     ) {
         try {
             return ResponseEntity.ok(quizService.findMyQuizzes(courseId, userId));
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/{quizId}")
+    public ResponseEntity<QuizDetailResponse> findQuizDetail(
+        @PathVariable final Long quizId,
+        @CurrentUser final UUID userId
+    ) {
+        try {
+            return ResponseEntity.ok(quizService.findQuizDetail(quizId, userId));
         } catch (RuntimeException e) {
             log.error(e.getMessage());
             return ResponseEntity.badRequest().build();

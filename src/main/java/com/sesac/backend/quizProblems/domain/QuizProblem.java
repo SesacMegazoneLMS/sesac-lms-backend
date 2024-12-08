@@ -46,5 +46,5 @@ public class QuizProblem {
     private String question;
 
     @ElementCollection
-    private List<String> options = new ArrayList<>();
+    private List<String> choices = new ArrayList<>();
 }
