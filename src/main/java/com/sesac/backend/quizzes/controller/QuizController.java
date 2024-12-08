@@ -59,4 +59,18 @@ public class QuizController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    @DeleteMapping("/{quizId}")
+    public ResponseEntity<Void> deleteQuiz(
+        @PathVariable final Long quizId,
+        @CurrentUser final UUID userId
+    ) {
+        try {
+            quizService.deleteQuiz(quizId, userId);
+            return ResponseEntity.noContent().build();
+        } catch (RuntimeException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

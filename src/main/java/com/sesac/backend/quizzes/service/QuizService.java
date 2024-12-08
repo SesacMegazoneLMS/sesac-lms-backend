@@ -17,6 +17,7 @@ import com.sesac.backend.users.domain.User;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,9 @@ public class QuizService {
             .map(student -> {
                     Quiz quiz = creationRequestToQuiz(request, course, student);
                     List<QuizProblem> problems = request.getQuizProblems().stream()
-                        .map(dto -> creationDtoToProblem(dto, quiz)).toList();
+                        .map(dto -> creationDtoToProblem(dto, quiz))
+                        .sorted(Comparator.comparingInt(QuizProblem::getProblemNumber))
+                        .toList();
                     quiz.setQuizProblems(problems);
                     return quiz;
                 }
@@ -96,6 +99,7 @@ public class QuizService {
      * 퀴즈 상세 조회
      *
      * @param quizId
+     * @param userId
      * @return QuizDetailResponse
      */
     public QuizDetailResponse findQuizDetail(Long quizId, UUID userId) {
@@ -160,5 +164,21 @@ public class QuizService {
                     "시험 시간: " + quiz.getStartTime() + " ~ " + quiz.getEndTime());
             }
         }
+    }
+
+    /**
+     * 퀴즈 삭제
+     *
+     * @param quizId
+     * @param userId
+     */
+    public void deleteQuiz(Long quizId, UUID userId) {
+        Quiz quiz = quizRepository.findById(quizId).orElseThrow(RuntimeException::new);
+
+        if (!quiz.getCourse().getInstructor().getUserId().equals(userId)) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+
+        quizRepository.delete(quiz);
     }
 }
