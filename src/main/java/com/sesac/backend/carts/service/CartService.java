@@ -14,8 +14,6 @@ import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.attribute.UserPrincipalNotFoundException;
