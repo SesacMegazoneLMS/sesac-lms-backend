@@ -1,13 +1,12 @@
 package com.sesac.backend.users.domain;
 
-import com.sesac.backend.audit.BaseEntity;
-import com.sesac.backend.users.enums.UserType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.UUID;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,25 +22,13 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class User extends BaseEntity {
+public class StudentDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private UUID userId;
-
-    @Column(unique = true)
-    private String nickname; // 닉네임(이름)
-
-    @Column(updatable = false)
-    private String email;
-
-    @Column(updatable = false)
-    private UserType userType;
-
-    private String phoneNumber;
-
-    private String address;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

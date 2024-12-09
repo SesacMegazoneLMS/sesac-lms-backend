@@ -11,5 +11,5 @@ public class GetUserProfileResponse {
     private String statusCode;
     private String errorCode;
     private String message;
-    private UserProfile profile;
+    private InstructorProfile profile;
 }
