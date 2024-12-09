@@ -1,19 +1,18 @@
 package com.sesac.backend.users.service;
 
-import com.sesac.backend.users.domain.User;
+import com.sesac.backend.users.domain.InstructorDetail;
 import com.sesac.backend.users.dto.request.UpdateProfileImg;
 import com.sesac.backend.users.dto.request.UpdateProfileInfo;
 import com.sesac.backend.users.dto.response.GetUserProfileResponse;
 import com.sesac.backend.users.dto.response.PutProfileResponse;
-import com.sesac.backend.users.dto.response.UserProfile;
-import com.sesac.backend.users.repository.UserRepository;
+import com.sesac.backend.users.dto.response.InstructorProfile;
+import com.sesac.backend.users.repository.InstructorDetailRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository repo;
+    private final InstructorDetailRepository repo;
 
 
     // List<String> -> String (직렬화)
@@ -40,34 +39,34 @@ public class UserService {
     }
 
     public void checkUserValidate(UUID uuid) {
-        if(!repo.existsByUserId(uuid)){
+        if(!repo.existsByUserUserId(uuid)){
             throw new IllegalArgumentException();
         }
     }
 
     public GetUserProfileResponse getUserProfile(UUID uuid) {
-        User user = repo.findByUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        UserProfile userProfile = new UserProfile(user);
-        userProfile.setTechStack(deserializeTechStack(user.getTechStack()));
-        return new GetUserProfileResponse("OK",null,null,userProfile);
+        InstructorDetail instructorDetail = repo.findByUserUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        InstructorProfile instructorProfile = new InstructorProfile(instructorDetail);
+        instructorProfile.setTechStack(deserializeTechStack(instructorDetail.getTechStack()));
+        return new GetUserProfileResponse("OK",null,null, instructorProfile);
     }
 
 
     public PutProfileResponse updateUserProfile(UUID uuid, UpdateProfileImg img) {
-        User user = repo.findByUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        user.setProfileImgUrl(img.getProfileImgUrl());
-        repo.save(user);
+        InstructorDetail instructorDetail = repo.findByUserUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        instructorDetail.setProfileImgUrl(img.getProfileImgUrl());
+        repo.save(instructorDetail);
         return new PutProfileResponse("OK",null,"프로필 이미지 변경 성공");
     }
     public PutProfileResponse updateUserProfile(UUID uuid, UpdateProfileInfo info) {
-        User user = repo.findByUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        user.setNickname(info.getNickname());
-        user.setIntroduction(info.getIntroduction());
-        user.setTechStack(serializeTechStack(info.getTechStack()));
-        user.setWebsiteUrl(info.getWebsiteUrl());
-        user.setLinkedinUrl(info.getLinkedinUrl());
-        user.setGithubUrl(info.getGithubUrl());
-        repo.save(user);
+        InstructorDetail instructorDetail = repo.findByUserUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        instructorDetail.getUser().setNickname(info.getNickname());
+        instructorDetail.setIntroduction(info.getIntroduction());
+        instructorDetail.setTechStack(serializeTechStack(info.getTechStack()));
+        instructorDetail.setWebsiteUrl(info.getWebsiteUrl());
+        instructorDetail.setLinkedinUrl(info.getLinkedinUrl());
+        instructorDetail.setGithubUrl(info.getGithubUrl());
+        repo.save(instructorDetail);
         return new PutProfileResponse("OK",null,"프로필 정보 변경 성공");
     }
 }

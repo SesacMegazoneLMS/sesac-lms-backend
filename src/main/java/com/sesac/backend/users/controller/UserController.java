@@ -7,12 +7,10 @@ import com.sesac.backend.users.dto.request.UpdateProfileImg;
 import com.sesac.backend.users.dto.request.UpdateProfileInfo;
 import com.sesac.backend.users.dto.response.GetUserProfileResponse;
 import com.sesac.backend.users.dto.response.PutProfileResponse;
-import com.sesac.backend.users.dto.response.UserProfile;
 import com.sesac.backend.users.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
