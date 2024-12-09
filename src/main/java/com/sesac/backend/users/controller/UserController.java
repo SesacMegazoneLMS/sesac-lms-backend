@@ -33,10 +33,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(userService.getUserProfile(uuid));
         }catch(IllegalArgumentException e) {
             return ResponseEntity.badRequest()
-                    .body(new GetUserProfileResponse("UNAUTHORIZED","402","인증되지 않은 사용자입니다.",null));
+                .body(new GetUserProfileResponse("UNAUTHORIZED","402","인증되지 않은 사용자입니다.",null));
         }catch(Exception e) {
             return ResponseEntity.internalServerError()
-                    .body(new GetUserProfileResponse("INTERNAL SERVER ERROR","500","서버에서 요청을 처리할 수 없습니다.",null));
+                .body(new GetUserProfileResponse("INTERNAL SERVER ERROR","500","서버에서 요청을 처리할 수 없습니다.",null));
         }
     }
 
@@ -46,13 +46,13 @@ public class UserController {
             userService.checkUserValidate(uuid);
             PutProfileResponse response = userService.updateUserProfile(uuid, img);
             return ResponseEntity.status(HttpStatus.OK)
-                    .body(response);
+                .body(response);
         }catch(IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new PutProfileResponse("UNAUTHORIZED","402","인증되지 않은 사용자입니다."));
+                .body(new PutProfileResponse("UNAUTHORIZED","402","인증되지 않은 사용자입니다."));
         }catch(Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new PutProfileResponse("INTERNAL SERVER ERROR","500","서버에서 요청을 처리할 수 없습니다."));
+                .body(new PutProfileResponse("INTERNAL SERVER ERROR","500","서버에서 요청을 처리할 수 없습니다."));
         }
     }
 
@@ -63,10 +63,10 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserProfile(uuid, info));
         }catch(IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new PutProfileResponse("UNAUTHORIZED","402","인증되지 않은 사용자입니다."));
+                .body(new PutProfileResponse("UNAUTHORIZED","402","인증되지 않은 사용자입니다."));
         }catch(Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new PutProfileResponse("INTERNAL SERVER ERROR","500","서버에서 요청을 처리할 수 없습니다."));
+                .body(new PutProfileResponse("INTERNAL SERVER ERROR","500","서버에서 요청을 처리할 수 없습니다."));
         }
     }
 }
