@@ -10,6 +10,8 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderResponse {
 
+    private String nickname;
+
     private String merchantUid;
 
     private Integer totalAmount;

@@ -28,6 +28,6 @@ public class Review {
 
     private Integer rating;
     private String content;
-    private Integer likes;
+    private Integer likes = 0;
     private Boolean helpful;
 }

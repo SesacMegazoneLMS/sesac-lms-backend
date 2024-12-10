@@ -1,5 +1,6 @@
 package com.sesac.backend.lectures.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sesac.backend.courses.domain.Course;
 import jakarta.persistence.*;
 import lombok.*;

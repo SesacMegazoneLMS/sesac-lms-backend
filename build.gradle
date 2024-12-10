@@ -38,6 +38,9 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
+    // LocalDateTime 직렬화를 위한 dependency
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-api
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
     // https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-impl

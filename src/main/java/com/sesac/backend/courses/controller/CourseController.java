@@ -26,7 +26,7 @@ public class CourseController {
 
         UUID userId = UUID.fromString(authentication.getName());
 
-//        System.out.println("userId : " + userId);
+        System.out.println("userId : " + userId);
         System.out.println( "요청값 : " + request);
 
         try {

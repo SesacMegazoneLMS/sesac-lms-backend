@@ -115,14 +115,12 @@ public class CartService {
 
             // 특정 인덱스 삭제
             cartInfo.remove(String.valueOf(index));
-            System.out.println("삭제 index : " + index);
 
             // 인덱스 재정렬
             ObjectNode reorderedCartInfo = reorderCartInfo(cartInfo);
-            System.out.println("재정렬된 cartInfo : " + reorderedCartInfo);
 
+            //cart에 setting
             cart.setCartInfo(reorderedCartInfo);
-            System.out.println("cart에 세팅 : " + cart.getCartInfo());
             cartRepository.save(cart);
         } catch (Exception e) {
             throw new RuntimeException("장바구니 항목 삭제 실패", e);
