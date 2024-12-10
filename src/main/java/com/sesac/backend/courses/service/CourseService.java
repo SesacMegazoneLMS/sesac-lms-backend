@@ -23,7 +23,7 @@ public class CourseService {
 
     public void createCourse(UUID userId, CourseDto request) {
 
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 업습니다"));
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
         System.out.println("찾은 유저 정보 : " + user);
 

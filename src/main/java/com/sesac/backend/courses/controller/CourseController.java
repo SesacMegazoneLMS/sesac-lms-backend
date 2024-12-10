@@ -42,8 +42,8 @@ public class CourseController {
                     "message", "동일한 이름의 강의가 존재합니다"
             ));
         } catch (RuntimeException e) {
-            e.printStackTrace();
-            System.out.println("오류 : " + e.getMessage());
+//            e.printStackTrace();
+//            System.out.println("오류 : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", e.getMessage()
             ));

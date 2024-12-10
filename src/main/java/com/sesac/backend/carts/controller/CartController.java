@@ -7,10 +7,8 @@ import com.sesac.backend.carts.exception.CartNotFoundException;
 import com.sesac.backend.carts.service.CartService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -29,6 +27,8 @@ public class CartController {
         try{
             cartService.addCourseToCart(USER_ID, cartRequest);
             return ResponseEntity.ok("장바구니에 강의가 성공적으로 추가되었습니다.");
+        }catch(IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch(RuntimeException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

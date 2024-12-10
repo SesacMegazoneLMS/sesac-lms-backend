@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.*;
 
-
 @Service
 @RequiredArgsConstructor
 public class CartService {
@@ -45,6 +44,12 @@ public class CartService {
             // cartInfo 업데이트
             // ObjectMapper : Java 객체와 JSON 간의 변환을 쉽게 해주는 기능
             ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
+
+            // 중복 강의 체크
+            if (isCourseInCart(cartInfo, course.getId())) {
+                throw new IllegalArgumentException("이미 장바구니에 해당 강의가 존재합니다.");
+            }
+
             int nextIndex = findNextIndex(cartInfo);
 
             // 새로운 course 정보를 담을 객체 생성
@@ -84,6 +89,20 @@ public class CartService {
 
         return newItem;
     }
+
+    // 장바구니에 강의가 이미 존재하는지 확인하는 메서드
+    // jsonNode의 fieldname type이 "1","2" ... 로 String이기 때문에 Iterator를 사용해 반복
+    private boolean isCourseInCart(ObjectNode cartInfo, Long courseId) {
+        Iterator<String> fieldNames = cartInfo.fieldNames();
+        while (fieldNames.hasNext()) {
+            String key = fieldNames.next();
+            ObjectNode item = (ObjectNode) cartInfo.get(key);
+            if(item.get("courseId").asLong() == courseId){
+                return true;
+            }
+        }
+        return false; // 중복 강의 없음
+    }
     //--------------------------------------------------------------
 
     // 장바구니에서 삭제------------------------------------------------
@@ -96,11 +115,14 @@ public class CartService {
 
             // 특정 인덱스 삭제
             cartInfo.remove(String.valueOf(index));
+            System.out.println("삭제 index : " + index);
 
             // 인덱스 재정렬
             ObjectNode reorderedCartInfo = reorderCartInfo(cartInfo);
+            System.out.println("재정렬된 cartInfo : " + reorderedCartInfo);
 
             cart.setCartInfo(reorderedCartInfo);
+            System.out.println("cart에 세팅 : " + cart.getCartInfo());
             cartRepository.save(cart);
         } catch (Exception e) {
             throw new RuntimeException("장바구니 항목 삭제 실패", e);
@@ -113,11 +135,23 @@ public class CartService {
         ObjectNode reorderedCartInfo = objectMapper.createObjectNode();
         int newIndex = 1;
 
-        for (int i = 1; i <= cartInfo.size(); i++) {
-            if (cartInfo.has(String.valueOf(i))) {
-                reorderedCartInfo.set(String.valueOf(newIndex), cartInfo.get(String.valueOf(i)));
-                newIndex++;
-            }
+        // 인덱스 2개가 삭제되는 문제가 발생함 -> 재정렬 시 일부 데이터가 손실됨
+//        for (int i = 1; i <= cartInfo.size(); i++) {
+//            if (cartInfo.has(String.valueOf(i))) {
+//                reorderedCartInfo.set(String.valueOf(newIndex), cartInfo.get(String.valueOf(i)));
+//                newIndex++;
+//            }
+//        }
+
+        // 기존 메서드는 1부터 cartInfo.size()까지 순차적으로 인덱스를 체크하지만 새로운 메서드는 fieldNames() 반복자를 사용하여
+        // 실제 존재하는 모든 필드를 직접 순회함으로써 누락 없이 모든 장바구니 항목을 순차적으로 재정렬할 수 있다.
+        // cartInfo의 모든 필드 이름을 가져와서 반복 -> Index로 생성한 "1","2", ...
+        // 데이터 삭제 시 데이터 손실 방지, 일관된 순차적 인덱싱 유지, 모든 항목이 순서대로 정렬되어 유지됨
+        Iterator<String> fieldNames = cartInfo.fieldNames();
+        while (fieldNames.hasNext()) {
+            String key = fieldNames.next();
+            reorderedCartInfo.set(String.valueOf(newIndex), cartInfo.get(key));
+            newIndex++;
         }
 
         return reorderedCartInfo;
