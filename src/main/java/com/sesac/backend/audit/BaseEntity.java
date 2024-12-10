@@ -1,5 +1,6 @@
 package com.sesac.backend.audit;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import java.sql.Date;
 import java.time.LocalDateTime;
