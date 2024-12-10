@@ -27,7 +27,6 @@ public class LectureRequest {
                 .duration(lecture.getDuration())
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
-                .hlsUrl(lecture.getHlsUrl())
                 .status(lecture.getStatus())
                 .build();
     }
@@ -39,7 +38,6 @@ public class LectureRequest {
                 .duration(this.duration)
                 .orderIndex(this.orderIndex)
                 .videoKey(this.videoKey)
-                .hlsUrl(this.hlsUrl)
                 .status(this.status)
                 .build();
     }
