@@ -52,7 +52,7 @@ public class QuizService {
         Course course = courseRepository.findById(request.getCourseId())
             .orElseThrow(RuntimeException::new);
 
-        if (!course.getInstructor().getUserId().equals(userId)) {
+        if (!course.getInstructor().getUuid().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
 
@@ -96,7 +96,7 @@ public class QuizService {
     public List<QuizReadResponse> findMyQuizzes(Long courseId, UUID userId) {
         Course course = courseRepository.findById(courseId).orElseThrow(RuntimeException::new);
 
-        return quizRepository.findAllByStudentUserIdAndCourseId(userId, courseId)
+        return quizRepository.findAllByStudentUuidAndCourseId(userId, courseId)
             .stream().map(entity -> quizToReadResponse(entity, course)).toList();
     }
 
@@ -159,8 +159,8 @@ public class QuizService {
     }
 
     private void validateAccess(Quiz quiz, UUID userId) {
-        boolean isStudent = quiz.getStudent().getUserId().equals(userId);
-        boolean isInstructor = quiz.getCourse().getInstructor().getUserId().equals(userId);
+        boolean isStudent = quiz.getStudent().getUuid().equals(userId);
+        boolean isInstructor = quiz.getCourse().getInstructor().getUuid().equals(userId);
 
         if (!isStudent && !isInstructor) {
             throw new RuntimeException("권한이 없습니다.");
@@ -168,7 +168,7 @@ public class QuizService {
     }
 
     private void validateQuizTime(Quiz quiz, UUID userId) {
-        if (quiz.getStudent().getUserId().equals(userId)) {
+        if (quiz.getStudent().getUuid().equals(userId)) {
             LocalDateTime now = LocalDateTime.now();
             boolean isBeforeQuiz = now.isBefore(quiz.getStartTime());
             boolean isAfterQuiz = now.isAfter(quiz.getEndTime());
@@ -189,7 +189,7 @@ public class QuizService {
     public void deleteQuiz(Long quizId, UUID userId) {
         Quiz quiz = quizRepository.findById(quizId).orElseThrow(RuntimeException::new);
 
-        if (!quiz.getCourse().getInstructor().getUserId().equals(userId)) {
+        if (!quiz.getCourse().getInstructor().getUuid().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
 
@@ -206,7 +206,7 @@ public class QuizService {
     public QuizSubmissionResponse submitQuiz(QuizSubmissionRequest request, UUID userId) {
         Quiz quiz = quizRepository.findById(request.getQuizId()).orElseThrow(RuntimeException::new);
 
-        if (!quiz.getStudent().getUserId().equals(userId)) {
+        if (!quiz.getStudent().getUuid().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
 
@@ -271,8 +271,8 @@ public class QuizService {
     public QuizResultResponse findQuizResult(Long quizId, UUID userId) {
         Quiz quiz = quizRepository.findQuizWithResult(quizId).orElseThrow(RuntimeException::new);
 
-        if (!quiz.getStudent().getUserId().equals(userId)
-            && !quiz.getCourse().getInstructor().getUserId().equals(userId)) {
+        if (!quiz.getStudent().getUuid().equals(userId)
+            && !quiz.getCourse().getInstructor().getUuid().equals(userId)) {
             throw new RuntimeException("권한이 없습니다.");
         }
 

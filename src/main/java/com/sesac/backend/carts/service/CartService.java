@@ -31,7 +31,7 @@ public class CartService {
     public void addCourseToCart(UUID userId, CartRequest cartRequest) {
         try {
             // UUID를 사용하여 user 정보 조회
-            User user = userRepository.findByUserId(userId).orElseThrow();
+            User user = userRepository.findByUuid(userId).orElseThrow();
 
             // courseId를 사용하여 코스 정보를 조회
             Course course = courseRepository.findById(cartRequest.getCourseId()).orElseThrow(
@@ -108,21 +108,19 @@ public class CartService {
     // 장바구니에서 삭제------------------------------------------------
     public void removeCourseFromCart(UUID userId, int index) {
         try {
-            User user = userRepository.findByUserId(userId).orElseThrow();
+            User user = userRepository.findByUuid(userId).orElseThrow();
             Cart cart = cartRepository.findByUser(user).orElseThrow();
 
             ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
 
             // 특정 인덱스 삭제
             cartInfo.remove(String.valueOf(index));
-            System.out.println("삭제 index : " + index);
 
             // 인덱스 재정렬
             ObjectNode reorderedCartInfo = reorderCartInfo(cartInfo);
-            System.out.println("재정렬된 cartInfo : " + reorderedCartInfo);
 
+            //cart에 setting
             cart.setCartInfo(reorderedCartInfo);
-            System.out.println("cart에 세팅 : " + cart.getCartInfo());
             cartRepository.save(cart);
         } catch (Exception e) {
             throw new RuntimeException("장바구니 항목 삭제 실패", e);
@@ -162,7 +160,7 @@ public class CartService {
     // getCart pagination---------------------------------------------------------------------
     public CartResponse getCart(UUID userId, int page, int size){
         try{
-            User user = userRepository.findByUserId(userId).orElseThrow(
+            User user = userRepository.findByUuid(userId).orElseThrow(
                     () -> new UserPrincipalNotFoundException("로그인을 해주세요"));
 
             Cart cart = cartRepository.findByUser(user).orElseThrow(

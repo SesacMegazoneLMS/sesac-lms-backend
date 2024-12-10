@@ -1,14 +1,12 @@
 package com.sesac.backend.users.domain;
 
 import com.sesac.backend.audit.BaseEntity;
+import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.users.enums.UserType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -32,7 +30,7 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private UUID userId;
+    private UUID uuid;
 
     @Column(unique = true)
     private String nickname; // 닉네임(이름)
@@ -47,4 +45,7 @@ public class User extends BaseEntity {
     private String phoneNumber;
 
     private String address;
+
+    @OneToMany(mappedBy = "writer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>(); // User가 작성한 리뷰
 }

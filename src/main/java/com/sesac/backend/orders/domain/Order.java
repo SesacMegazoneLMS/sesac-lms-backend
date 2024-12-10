@@ -20,13 +20,13 @@ public class Order extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderId;
+    private Long id;
 
     @Column(unique = true)
     private String merchantUid;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     private Integer totalAmount;
