@@ -24,7 +24,7 @@ public class ReviewService {
 
     public void saveReview(ReviewRequest req, UUID USER_ID) {
 
-        User user = userRepository.findByUserId(USER_ID).orElseThrow();
+        User user = userRepository.findByUuid(USER_ID).orElseThrow();
         Course course = courseRepository.findById(req.getCourseId()).orElseThrow();
 
         Review review = Review.builder()
