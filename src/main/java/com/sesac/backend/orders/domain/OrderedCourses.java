@@ -16,14 +16,14 @@ public class OrderedCourses {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long orderedCoursesId;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "course_id")
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "orderId")
+    @JoinColumn(name = "order_id")
     private Order order;
 
     private Integer price; // 구매 당시 가격
