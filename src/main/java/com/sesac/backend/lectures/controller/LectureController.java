@@ -1,6 +1,8 @@
 package com.sesac.backend.lectures.controller;
 
+import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
+import com.sesac.backend.lectures.dto.response.LectureDetailResponse;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
 import com.sesac.backend.lectures.service.LectureService;
 import lombok.AllArgsConstructor;
@@ -10,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 // 로그를 위한 Slf4j 어노테이션
 @Slf4j
@@ -38,7 +40,6 @@ public class LectureController {
         lectureService.updateVideoStatus(
                 request.getLectureId(),
             request.getVideoKey(),
-            request.getHlsUrl(),
             request.getStatus()
         );
         return ResponseEntity.ok().build();
@@ -51,17 +52,46 @@ public class LectureController {
     // 강의 생성 요청을 처리하는 엔드포인트
     @PostMapping
     public ResponseEntity<LectureResponse> createLecture(@RequestBody LectureRequest request) {
-        // 강의 생성 후 응답 반환
         return ResponseEntity.ok(lectureService.createLecture(request));
+    }
+
+    // 단일 강의 조회
+    @GetMapping("/{id}")
+    public ResponseEntity<LectureDetailResponse> getLecture(@PathVariable Long id) {
+        try {
+            Lecture lecture = lectureService.getLecture(id);
+            return ResponseEntity.ok(LectureDetailResponse.from(lecture));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    // 전체 강의 목록 조회
+    @GetMapping
+    public ResponseEntity<List<LectureDetailResponse>> getAllLectures() {
+        List<LectureDetailResponse> lectures = lectureService.getAllLectures()
+            .stream()
+            .map(LectureDetailResponse::from)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(lectures);
+    }
+
+    // 특정 코스의 강의 목록 조회
+    @GetMapping("/course/{courseId}")
+    public ResponseEntity<List<LectureDetailResponse>> getLecturesByCourse(@PathVariable Long courseId) {
+        List<LectureDetailResponse> lectures = lectureService.getLecturesByCourseId(courseId)
+            .stream()
+            .map(LectureDetailResponse::from)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(lectures);
     }
 }
 
-// 비디오 완료 요청을 위한 DTO 클래스
+// 비��오 완료 요청을 위한 DTO 클래스
 @Getter
 @Setter
 class VideoCompleteRequest {
     private Long lectureId;
     private String videoKey;
-    private String hlsUrl;
     private String status;
 }
