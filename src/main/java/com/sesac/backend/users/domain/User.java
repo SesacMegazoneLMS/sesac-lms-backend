@@ -32,7 +32,7 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private UUID userId;
+    private UUID uuid;
 
     @Column(unique = true)
     private String nickname; // 닉네임(이름)
