@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @PutMapping("/profile")
-    public ResponseEntity<PutProfileResponse> updateUserProfile(@CurrentUser UUID uuid, UpdateProfileInfo info ) {
+    public ResponseEntity<PutProfileResponse> updateUserProfile(@CurrentUser UUID uuid, @RequestBody UpdateProfileInfo info ) {
         try{
             userService.checkUserValidate(uuid);
             return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserProfile(uuid, info));
