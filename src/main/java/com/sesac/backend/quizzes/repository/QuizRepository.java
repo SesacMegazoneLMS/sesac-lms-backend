@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface QuizRepository extends JpaRepository<Quiz, Long> {
 
-    List<Quiz> findAllByStudentUserIdAndCourseId(UUID studentUserId, Long courseId);
+    List<Quiz> findAllByStudentUuidAndCourseId(UUID studentUserId, Long courseId);
 
     @Query("""
     SELECT DISTINCT q FROM Quiz q

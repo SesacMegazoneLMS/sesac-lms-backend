@@ -9,6 +9,6 @@ import java.util.UUID;
 
 @Repository
 public interface InstructorDetailRepository extends JpaRepository<InstructorDetail, Long> {
-    Optional<InstructorDetail> findByUserUserId(UUID uuid);
-    Boolean existsByUserUserId(UUID uuid);
+    Optional<InstructorDetail> findByUserUuid(UUID uuid);
+    Boolean existsByUserUuid(UUID uuid);
 }
