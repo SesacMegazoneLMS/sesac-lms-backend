@@ -27,6 +27,6 @@ public class Lecture {
 
     //영상정보
     private String videoKey;      // S3 객체 키 //
-    private String hlsUrl;        // 변환된 HLS 스트리밍 URL //
+    private String cloudFrontUrl = "https://dt9kc2k4h1nps.cloudfront.net";
     private String status;        // PROCESSING, COMPLETED, FAILED
 }

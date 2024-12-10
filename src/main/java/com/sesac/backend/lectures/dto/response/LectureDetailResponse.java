@@ -16,7 +16,7 @@ public class LectureDetailResponse {
     private Boolean isFree;
     private Integer orderIndex;
     private String videoKey;
-    private String hlsUrl;
+    private String cloudFrontUrl;
     private String status;
 
     public static LectureDetailResponse from(Lecture lecture) {
@@ -28,7 +28,7 @@ public class LectureDetailResponse {
                 .isFree(lecture.getIsFree())
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
-                .hlsUrl(lecture.getHlsUrl())
+                .cloudFrontUrl(lecture.getCloudFrontUrl())
                 .status(lecture.getStatus())
                 .build();
     }

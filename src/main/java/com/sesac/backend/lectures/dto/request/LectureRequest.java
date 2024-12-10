@@ -16,7 +16,6 @@ public class LectureRequest {
     private String duration;
 
     private String videoKey;
-    private String hlsUrl;
     private String status;
     
 }

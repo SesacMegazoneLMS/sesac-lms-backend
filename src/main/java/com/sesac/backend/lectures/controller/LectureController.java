@@ -40,7 +40,6 @@ public class LectureController {
         lectureService.updateVideoStatus(
                 request.getLectureId(),
             request.getVideoKey(),
-            request.getHlsUrl(),
             request.getStatus()
         );
         return ResponseEntity.ok().build();
@@ -94,6 +93,5 @@ public class LectureController {
 class VideoCompleteRequest {
     private Long lectureId;
     private String videoKey;
-    private String hlsUrl;
     private String status;
 }
