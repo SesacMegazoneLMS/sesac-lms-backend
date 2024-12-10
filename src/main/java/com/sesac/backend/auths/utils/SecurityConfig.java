@@ -42,6 +42,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth ->
                 auth
                     .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
+                    .requestMatchers("GET", "/courses").permitAll()
                     .requestMatchers(STUDENTS_API).hasRole("STUDENT")
                     .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
                     .anyRequest().authenticated()

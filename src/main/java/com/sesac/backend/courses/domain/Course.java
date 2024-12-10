@@ -1,5 +1,6 @@
 package com.sesac.backend.courses.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
