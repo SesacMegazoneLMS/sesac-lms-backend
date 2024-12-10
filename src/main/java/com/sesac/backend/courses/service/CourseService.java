@@ -41,9 +41,10 @@ public class CourseService {
                 .objectives(request.getObjectives())
                 .requirements(request.getRequirements())
                 .skills(request.getSkills())
-                .lectures(new ArrayList<>())
+                .lectures(new ArrayList<>()) // 빈 리스트로 초기화
                 .build();
 
+        // Lecture 엔티티들 생성 및 연결
         if (request.getLectures() != null) {
             List<Lecture> lectures = request.getLectures().stream()
                     .map(lectureRequest -> lectureRequest.toEntity(course))
