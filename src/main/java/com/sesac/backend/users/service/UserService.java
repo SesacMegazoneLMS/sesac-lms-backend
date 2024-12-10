@@ -39,13 +39,13 @@ public class UserService {
     }
 
     public void checkUserValidate(UUID uuid) {
-        if(!repo.existsByUserUserId(uuid)){
+        if(!repo.existsByUserUuid(uuid)){
             throw new IllegalArgumentException();
         }
     }
 
     public GetUserProfileResponse getUserProfile(UUID uuid) {
-        InstructorDetail instructorDetail = repo.findByUserUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        InstructorDetail instructorDetail = repo.findByUserUuid(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         InstructorProfile instructorProfile = new InstructorProfile(instructorDetail);
         instructorProfile.setTechStack(deserializeTechStack(instructorDetail.getTechStack()));
         return new GetUserProfileResponse("OK",null,null, instructorProfile);
@@ -53,13 +53,13 @@ public class UserService {
 
 
     public PutProfileResponse updateUserProfile(UUID uuid, UpdateProfileImg img) {
-        InstructorDetail instructorDetail = repo.findByUserUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        InstructorDetail instructorDetail = repo.findByUserUuid(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         instructorDetail.setProfileImgUrl(img.getProfileImgUrl());
         repo.save(instructorDetail);
         return new PutProfileResponse("OK",null,"프로필 이미지 변경 성공");
     }
     public PutProfileResponse updateUserProfile(UUID uuid, UpdateProfileInfo info) {
-        InstructorDetail instructorDetail = repo.findByUserUserId(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        InstructorDetail instructorDetail = repo.findByUserUuid(uuid).orElseThrow(() -> new UsernameNotFoundException("User not found"));
         instructorDetail.getUser().setNickname(info.getNickname());
         instructorDetail.setIntroduction(info.getIntroduction());
         instructorDetail.setTechStack(serializeTechStack(info.getTechStack()));

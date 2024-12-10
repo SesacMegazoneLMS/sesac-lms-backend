@@ -32,7 +32,7 @@ public class OrderService {
     @Transactional
     public OrderResponse createOrder(OrderRequest orderRequest, UUID userId) {
 
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
+        User user = userRepository.findByUuid(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
         // 주문 생성
         Order order = Order.builder()
