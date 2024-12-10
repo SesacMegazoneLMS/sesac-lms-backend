@@ -25,6 +25,7 @@ public class Lecture {
     private Boolean isFree;
     private Integer orderIndex;  // 강의 순서
 
+    //영상정보
     private String videoKey;      // S3 객체 키 //
     private String hlsUrl;        // 변환된 HLS 스트리밍 URL //
     private String status;        // PROCESSING, COMPLETED, FAILED

@@ -7,8 +7,11 @@ import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
 import com.sesac.backend.lectures.repository.LectureRepository;
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 // 서비스 클래스 어노테이션
 @Service
@@ -50,11 +53,32 @@ public class LectureService {
             .title(request.getTitle())
             .videoKey(request.getVideoKey())
             .orderIndex(request.getOrderIndex())
+            .isFree(request.getIsFree())
+            .duration(request.getDuration())
             .status("PROCESSING")  // 초기 상태
             .build();
 
         lecture = lectureRepository.save(lecture);
         // 강의 ID를 포함한 응답 반환
         return new LectureResponse(lecture.getId());
+    }
+
+    // 단일 강의 조회
+    @Transactional(readOnly = true)
+    public Lecture getLecture(Long id) {
+        return lectureRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다: " + id));
+    }
+
+    // 전체 강의 목록 조회
+    @Transactional(readOnly = true)
+    public List<Lecture> getAllLectures() {
+        return lectureRepository.findAll();
+    }
+
+    // 특정 코스의 강의 목록 조회
+    @Transactional(readOnly = true)
+    public List<Lecture> getLecturesByCourseId(Long courseId) {
+        return lectureRepository.findByCourseId(courseId);
     }
 }

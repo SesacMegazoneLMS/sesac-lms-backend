@@ -11,9 +11,11 @@ import lombok.*;
 public class LectureRequest {
     private Long courseId;
     private String title;
-    private String videoKey;
     private Integer orderIndex;
+    private Boolean isFree;
     private String duration;
+
+    private String videoKey;
     private String hlsUrl;
     private String status;
     

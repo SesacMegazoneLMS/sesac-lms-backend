@@ -4,9 +4,9 @@ import com.sesac.backend.lectures.domain.Lecture;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
-    // Optional<Lecture> findByVideoKey(String videoKey);
+    List<Lecture> findByCourseId(Long courseId);
 }
