@@ -54,6 +54,7 @@ public class CourseService {
 
         for (Course course : courses) {
             courseDtos.add(CourseDto.builder()
+                    .id(course.getId())
                     .title(course.getTitle())
                     .description(course.getDescription())
                     .level(course.getLevel().getLevel())

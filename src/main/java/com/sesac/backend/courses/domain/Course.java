@@ -4,6 +4,7 @@ import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.lectures.domain.Lecture;
+import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.users.domain.User;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -60,4 +61,7 @@ public class Course extends BaseEntity {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Lecture> lectures = new ArrayList<>();
+
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Review> reviews = new ArrayList<>(); // Course에 대한 리뷰
 }
