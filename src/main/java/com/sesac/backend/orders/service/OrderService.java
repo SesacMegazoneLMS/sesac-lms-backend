@@ -58,6 +58,7 @@ public class OrderService {
         order = orderRepository.save(order);
 
         return OrderResponse.builder()
+                .nickname(order.getUser().getNickname())
                 .merchantUid(order.getMerchantUid())
                 .totalAmount(order.getTotalAmount())
                 .build();
