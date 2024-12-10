@@ -13,10 +13,11 @@ import lombok.*;
 public class LectureRequest {
     private Long courseId;
     private String title;
-    private String videoKey;
     private Integer orderIndex;
+    private Boolean isFree;
     private String duration;
-    private String hlsUrl;
+
+    private String videoKey;
     private String status;
 
     public static LectureRequest from(Lecture lecture) {
@@ -26,7 +27,6 @@ public class LectureRequest {
                 .duration(lecture.getDuration())
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
-                .hlsUrl(lecture.getHlsUrl())
                 .status(lecture.getStatus())
                 .build();
     }
@@ -38,7 +38,6 @@ public class LectureRequest {
                 .duration(this.duration)
                 .orderIndex(this.orderIndex)
                 .videoKey(this.videoKey)
-                .hlsUrl(this.hlsUrl)
                 .status(this.status)
                 .build();
     }
