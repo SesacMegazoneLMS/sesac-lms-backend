@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateProfileImg {
+public class InstructorImageUpdateRequest {
     private String profileImgUrl;
 }

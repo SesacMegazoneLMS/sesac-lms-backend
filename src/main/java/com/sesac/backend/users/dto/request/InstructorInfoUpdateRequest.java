@@ -10,9 +10,8 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UpdateProfileInfo {
+public class InstructorInfoUpdateRequest {
 
-    private String nickname;
     private String introduction;
     private List<String> techStack;
     private String websiteUrl;
