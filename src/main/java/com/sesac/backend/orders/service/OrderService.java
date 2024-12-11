@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -40,10 +41,15 @@ public class OrderService {
                 .user(user)
                 .totalAmount(orderRequest.getTotalAmount())
                 .orderStatus(OrderStatus.PENDING)
+                .orderedCourses(new ArrayList<>())
                 .build();
+
+        System.out.println("order: " + order);
+        System.out.println("orderedCourses: " + order.getOrderedCourses());
 
         // 주문 상품 추가
         for (OrderedCourseInfoForRequest info : orderRequest.getCourses()) {
+
             Course course = courseRepository.findById(info.getCourseId())
                     .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
 
@@ -52,10 +58,17 @@ public class OrderService {
                     .order(order)
                     .price(info.getPrice())
                     .build();
+
             order.getOrderedCourses().add(orderedCourses);
+
         }
 
+        System.out.println("orderLast: " + order);
+        System.out.println("orderLastCourses: " + order.getOrderedCourses());
+
         order = orderRepository.save(order);
+
+        System.out.println("isPassed?");
 
         return OrderResponse.builder()
                 .nickname(order.getUser().getNickname())
