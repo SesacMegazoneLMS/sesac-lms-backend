@@ -11,4 +11,15 @@ import lombok.*;
 public class ReviewResponse {
 
     private Long id;
+
+    private String writer;
+
+    private String content;
+
+    private Integer rating;
+
+    private Integer likes;
+
+    private Boolean helpful;
+
 }

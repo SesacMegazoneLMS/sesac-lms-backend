@@ -41,6 +41,11 @@ public class CartService {
             Cart cart = cartRepository.findByUser(user)
                     .orElse(Cart.builder().user(user).cartInfo(new ObjectMapper().createObjectNode()).build());
 
+            // 사용자 권한 체크
+            if (!cart.getUser().getId().equals(user.getId())) {
+                throw new SecurityException("접근권한이 없습니다.");
+            }
+
             // cartInfo 업데이트
             // ObjectMapper : Java 객체와 JSON 간의 변환을 쉽게 해주는 기능
             ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
@@ -111,6 +116,11 @@ public class CartService {
             User user = userRepository.findByUuid(userId).orElseThrow();
             Cart cart = cartRepository.findByUser(user).orElseThrow();
 
+            // 사용자 권한 체크
+            if (!cart.getUser().getId().equals(user.getId())) {
+                throw new SecurityException("접근권한이 없습니다.");
+            }
+
             ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
 
             // 특정 인덱스 삭제
@@ -165,6 +175,11 @@ public class CartService {
 
             Cart cart = cartRepository.findByUser(user).orElseThrow(
                     () -> new CartNotFoundException("장바구니 목록이 없습니다."));
+
+            // 사용자 권한 체크
+            if (!cart.getUser().getId().equals(user.getId())) {
+                throw new SecurityException("접근권한이 없습니다.");
+            }
 
             // 페이징 처리를 위해 장바구니 정보를 가져옴
             ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();

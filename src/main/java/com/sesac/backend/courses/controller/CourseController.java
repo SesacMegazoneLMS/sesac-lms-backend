@@ -2,6 +2,9 @@ package com.sesac.backend.courses.controller;
 
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.service.CourseService;
+import com.sesac.backend.reviews.dto.response.ReviewResponse;
+import com.sesac.backend.reviews.service.ReviewService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,14 +24,12 @@ import java.util.UUID;
 public class CourseController {
 
     private final CourseService courseService;
+    private final ReviewService reviewService;
 
     @PostMapping("")
     public ResponseEntity<?> createCourse(@RequestBody CourseDto request, Authentication authentication) {
 
         UUID userId = UUID.fromString(authentication.getName());
-
-        System.out.println("userId : " + userId);
-        System.out.println( "요청값 : " + request);
 
         try {
 
@@ -133,4 +135,28 @@ public class CourseController {
             return ResponseEntity.badRequest().build();
         }
     }
+
+    //특정 강의 수강평 조회
+    //api endpoint 표준 때문에 courseCont에 작성했습니다. gnuke
+    @GetMapping("/{courseId}/reviews")
+    public ResponseEntity<?> getAllReviewsInCourse(@PathVariable Long courseId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
+        try{
+            List<ReviewResponse> reviews = reviewService.getReviews(courseId, page, size);
+
+            if (reviews.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                    "message", "수강평이 없습니다.",
+                    "reviews", reviews
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "message", "수강평 목록 호출 성공",
+                "reviews", reviews
+            ));
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.noContent().build();
+        }
+    }
+
 }
