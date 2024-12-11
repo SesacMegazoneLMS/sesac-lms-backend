@@ -3,6 +3,7 @@ package com.sesac.backend.courses.controller;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
+import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.service.ReviewService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
@@ -159,6 +160,19 @@ public class CourseController {
         }
     }
 
-    // 강의별 수강평 평균 조회
+    // 강의별 수강평 평균, 수강평 수 조회
+    @GetMapping("/{courseId}/scores")
+    public ResponseEntity<?> getScoresInfo(@PathVariable Long courseId){
+        try{
+            ReviewStatus reviewStatus = reviewService.getScoresInfo(courseId);
+
+            return ResponseEntity.ok(Map.of(
+               "totalCount", reviewStatus.getReviewCount(),
+               "avarageRating", reviewStatus.getAverageRating()
+            ));
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.noContent().build();
+        }
+    }
 
 }

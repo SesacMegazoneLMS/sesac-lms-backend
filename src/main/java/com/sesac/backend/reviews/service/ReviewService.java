@@ -5,6 +5,7 @@ import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.reviews.dto.request.ReviewRequest;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
+import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.repository.ReviewRepository;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
@@ -162,6 +163,27 @@ public class ReviewService {
             logger.error("Unexpected error: {}", e.getMessage(), e);
             throw new RuntimeException("예상치 못한 오류가 발생했습니다.", e); // 일반 예외는 새로운 런타임 예외로 감싸서 던짐
         }
+    }
+
+    // 강의별 수강 점수, 총점에 관한 info
+    public ReviewStatus getScoresInfo(Long courseId){
+        List<Review> reviewList = reviewRepository.findByCourse_Id(courseId);
+
+        // 수강평 수
+        int reviewCount = reviewList.size();
+
+        // 리뷰 점수 총합
+        int totalScore = reviewList.stream()
+                                        .mapToInt(Review::getRating)
+                                        .sum();
+
+        // 평균 점수 계산
+        double averageRating = reviewCount > 0 ? (double) totalScore/reviewCount : 0.0;
+
+        return ReviewStatus.builder()
+            .reviewCount(reviewCount)
+            .averageRating(averageRating)
+            .build();
     }
 
     // 예외처리 중복코드 방지 메서드
