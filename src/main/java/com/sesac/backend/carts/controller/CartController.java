@@ -27,6 +27,8 @@ public class CartController {
         try{
             cartService.addCourseToCart(USER_ID, cartRequest);
             return ResponseEntity.ok("장바구니에 강의가 성공적으로 추가되었습니다.");
+        }catch (SecurityException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch(IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch(RuntimeException e){
@@ -40,7 +42,9 @@ public class CartController {
         try{
             cartService.removeCourseFromCart(USER_ID, index);
             return ResponseEntity.ok("성공적으로 삭제되었습니다.");
-        } catch (RuntimeException e) {
+        }catch (SecurityException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -53,6 +57,8 @@ public class CartController {
             return ResponseEntity.ok(cartResponse);
         }catch(CartNotFoundException e){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }catch (SecurityException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }catch(IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch(RuntimeException e) {
