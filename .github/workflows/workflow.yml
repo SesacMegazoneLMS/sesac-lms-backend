@@ -73,6 +73,7 @@ jobs:
           API_USER_SERVICE: ${{ secrets.API_USER_SERVICE }}
           PORTONE_API_KEY: ${{ secrets.PORTONE_API_KEY }}
           PORTONE_API_SECRET: ${{ secrets.PORTONE_API_SECRET }}
+          PORTONE_ALLOWED_IPS: ${{ secrets.PORTONE_ALLOWED_IPS }}
         run: |
           ./gradlew build sonar -Dsonar.qualitygate.wait=true --info
 
