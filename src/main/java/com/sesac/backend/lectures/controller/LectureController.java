@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 // 로그를 위한 Slf4j 어노테이션
@@ -55,6 +56,20 @@ public class LectureController {
         return ResponseEntity.ok(lectureService.createLecture(request));
     }
 
+    // 강의 수정 엔드포인트
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> updateLecture(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+        try {
+            lectureService.updateLecture(id, updates);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("강의 수정 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
     // 단일 강의 조회
     @GetMapping("/{id}")
     public ResponseEntity<LectureDetailResponse> getLecture(@PathVariable Long id) {
@@ -85,9 +100,23 @@ public class LectureController {
             .collect(Collectors.toList());
         return ResponseEntity.ok(lectures);
     }
+
+    // 강의 삭제 엔드포인트
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteLecture(@PathVariable Long id) {
+        try {
+            lectureService.deleteLecture(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("강의 삭제 중 오류 발생: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 }
 
-// 비��오 완료 요청을 위한 DTO 클래스
+// 비디오 완료 요청을 위한 DTO 클래스
 @Getter
 @Setter
 class VideoCompleteRequest {

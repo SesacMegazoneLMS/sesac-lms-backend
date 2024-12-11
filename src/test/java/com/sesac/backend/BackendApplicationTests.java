@@ -13,12 +13,9 @@ class BackendApplicationTests {
 
     @MockBean
     private JwtTokenProvider jwtTokenProvider;
-
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
-
     @Test
     void contextLoads() {
     }
-
 }
