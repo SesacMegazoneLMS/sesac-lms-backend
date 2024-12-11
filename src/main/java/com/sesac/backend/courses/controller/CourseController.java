@@ -159,4 +159,6 @@ public class CourseController {
         }
     }
 
+    // 강의별 수강평 평균 조회
+
 }
