@@ -24,9 +24,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${cors.allowed-origins}")
-    private String[] allowedOrigins;
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -56,10 +53,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(allowedOrigins));
+        configuration.setAllowedOrigins(List.of("*"));  // 모든 출처 허용
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(false);  // '*' 사용시 allowCredentials는 false여야 함
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
