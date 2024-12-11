@@ -23,7 +23,7 @@ public class OrderedCourses {
     private Course course;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id")
+    @JoinColumn(name = "order_Id")
     private Order order;
 
     private Integer price; // 구매 당시 가격

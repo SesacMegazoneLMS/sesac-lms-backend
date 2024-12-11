@@ -1,6 +1,7 @@
 package com.sesac.backend.courses.dto;
 
 import com.sesac.backend.lectures.domain.Lecture;
+import com.sesac.backend.lectures.dto.request.LectureRequest;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -35,5 +36,5 @@ public class CourseDto {
 
     private List<String> skills = new ArrayList<>();
 
-    private List<Lecture> lectures = new ArrayList<>();
+    private List<LectureRequest> lectures = new ArrayList<>();
 }

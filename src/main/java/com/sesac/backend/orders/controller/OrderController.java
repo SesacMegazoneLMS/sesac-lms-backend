@@ -32,6 +32,7 @@ public class OrderController {
         try {
             OrderResponse orderResponse = orderService.createOrder(orderRequest, userId);
             return ResponseEntity.ok(Map.of(
+                    "userName", orderResponse.getNickname(),
                     "merchantUid", orderResponse.getMerchantUid(),
                     "totalAmount", orderResponse.getTotalAmount()
             ));

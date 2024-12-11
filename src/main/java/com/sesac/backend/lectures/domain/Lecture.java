@@ -1,5 +1,6 @@
 package com.sesac.backend.lectures.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.sesac.backend.courses.domain.Course;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,7 +26,8 @@ public class Lecture {
     private Boolean isFree;
     private Integer orderIndex;  // 강의 순서
 
+    //영상정보
     private String videoKey;      // S3 객체 키 //
-    private String hlsUrl;        // 변환된 HLS 스트리밍 URL //
+    private String cloudFrontUrl = "https://dt9kc2k4h1nps.cloudfront.net";
     private String status;        // PROCESSING, COMPLETED, FAILED
 }
