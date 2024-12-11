@@ -39,6 +39,7 @@ public class LectureRequest {
                 .orderIndex(this.orderIndex)
                 .videoKey(this.videoKey)
                 .status(this.status)
+                .cloudFrontUrl("https://dt9kc2k4h1nps.cloudfront.net")  // CloudFront URL 추가
                 .build();
     }
     
