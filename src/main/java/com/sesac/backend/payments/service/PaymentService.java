@@ -109,6 +109,8 @@ public class PaymentService {
             payment.setPaidAt(LocalDateTime.now());
             paymentRepository.save(payment);
 
+            System.out.println("Payment 등록 완료: " + payment);
+
             // 주문 상태 업데이트
             order.setOrderStatus(OrderStatus.PAID);
             createEnrolledCourse(order);
