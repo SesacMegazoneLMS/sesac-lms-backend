@@ -45,7 +45,7 @@ public class UserController {
     }
 
     @PutMapping("/") // 사용자 기본 프로필 정보 가져오기
-    public ResponseEntity<UserProfilePutResponse> updateUserProfile(@CurrentUser UUID uuid, @RequestBody @Valid UserProfileUpdateRequest profile) {
+    public ResponseEntity<UserProfilePutResponse> updateUserProfile(@CurrentUser UUID uuid, @RequestBody UserProfileUpdateRequest profile) {
         try {
             return ResponseEntity.status(HttpStatus.OK).body(user_Service.updateUserProfile(uuid,profile));
         } catch (IllegalArgumentException e) {
@@ -71,7 +71,7 @@ public class UserController {
     }
 
     @PutMapping("/instructor") // 강사의 프로필 정보 업데이트
-    public ResponseEntity<InstructorProfilePutResponse> updateInsProfile(@CurrentUser UUID uuid, @Valid @RequestBody InstructorInfoUpdateRequest info ) {
+    public ResponseEntity<InstructorProfilePutResponse> updateInsProfile(@CurrentUser UUID uuid, @RequestBody InstructorInfoUpdateRequest info ) {
         try{
             return ResponseEntity.status(HttpStatus.OK).body(ins_Service.updateInstructorProfile(uuid, info));
         }catch(IllegalArgumentException e) {
@@ -84,7 +84,7 @@ public class UserController {
     }
 
     @PutMapping("/instructor/img") // 강사의 프로필 이미지 업데이트, AWS Lambda에 의해 S3에 저장되고 이미지 경로가 반환됨
-    public ResponseEntity<InstructorProfilePutResponse> putInsProfile(@CurrentUser UUID uuid, @Valid @RequestBody InstructorImageUpdateRequest img){
+    public ResponseEntity<InstructorProfilePutResponse> putInsProfile(@CurrentUser UUID uuid, @RequestBody InstructorImageUpdateRequest img){
         try{
             InstructorProfilePutResponse response = ins_Service.updateInstructorProfile(uuid, img);
             return ResponseEntity.status(HttpStatus.OK)

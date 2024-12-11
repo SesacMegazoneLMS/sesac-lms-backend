@@ -20,14 +20,14 @@ public class UserProfileService {
     private final UserRepository userRepo;
 
     private boolean checkUserValidate(UUID uuid) {
-        return userRepo.existsByUserId(uuid);
+        return userRepo.existsByUuid(uuid);
     }
 
     public UserProfileGetResponse getUserProfile(UUID uuid) {
         if(!checkUserValidate(uuid)) {
             throw new IllegalArgumentException();
         }
-        User user = userRepo.findByUserId(uuid).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepo.findByUuid(uuid).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         UserProfile profile = new UserProfile(user);
         return new UserProfileGetResponse("OK", null, "프로필 정보 조회 성공",profile);
     }
@@ -36,7 +36,7 @@ public class UserProfileService {
         if(!checkUserValidate(uuid)) {
             throw new IllegalArgumentException();
         }
-        User user = userRepo.findByUserId(uuid).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        User user = userRepo.findByUuid(uuid).orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         if (profile.getNickname() != null) {
             user.setNickname(profile.getNickname());
         }
@@ -46,6 +46,7 @@ public class UserProfileService {
         if (profile.getAddress() != null) {
             user.setAddress(profile.getAddress());
         }
+        userRepo.save(user);
         return new UserProfilePutResponse("OK", null, "프로필 정보 변경 성공");
 }
 }

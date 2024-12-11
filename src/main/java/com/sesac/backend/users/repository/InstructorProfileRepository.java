@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Repository
 public interface InstructorProfileRepository extends JpaRepository<InstructorDetail, Long> {
-    InstructorDetail findByUserUserId(UUID uuid);
-    boolean existsByUserUserId(UUID uuid);
+    InstructorDetail findByUserUuid(UUID uuid);
+    boolean existsByUserUuid(UUID uuid);
 
 }
