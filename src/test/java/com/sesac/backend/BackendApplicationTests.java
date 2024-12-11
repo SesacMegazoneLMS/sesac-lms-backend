@@ -7,7 +7,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-@SpringBootTest
+@SpringBootTest(classes = {BackendApplication.class})
+@TestPropertySource(properties = "spring.profiles.active=test")
+@EnableAutoConfiguration(exclude = {AwsConfig.class})
 @AutoConfigureMockMvc
 class BackendApplicationTests {
 
