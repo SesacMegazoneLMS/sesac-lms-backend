@@ -43,6 +43,7 @@ public class SecurityConfig {
                 auth
                     .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
                     .requestMatchers("GET", "/courses").permitAll()
+                    .requestMatchers("GET", "/courses/{courseId}/reviews").permitAll()
                     .requestMatchers(STUDENTS_API).hasRole("STUDENT")
                     .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
                     .anyRequest().authenticated()

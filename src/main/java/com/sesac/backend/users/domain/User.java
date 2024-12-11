@@ -22,7 +22,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Entity
+@Entity(name="users")
 public class User extends BaseEntity {
 
     @Id

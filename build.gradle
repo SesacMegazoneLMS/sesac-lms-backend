@@ -53,6 +53,9 @@ dependencies {
     implementation group: 'org.hibernate', name: 'hibernate-core', version: '6.3.1.Final', ext: 'pom'
     // https://mvnrepository.com/artifact/com.vladmihalcea/hibernate-types-60
     implementation group: 'com.vladmihalcea', name: 'hibernate-types-60', version: '2.20.0'
+
+    //aws 영상 삭제를 위한 dependency
+    implementation 'software.amazon.awssdk:s3:2.20.26'
 }
 
 tasks.named('test') {
