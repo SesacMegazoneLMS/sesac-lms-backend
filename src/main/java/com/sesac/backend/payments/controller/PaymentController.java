@@ -1,7 +1,9 @@
 package com.sesac.backend.payments.controller;
 
+import com.sesac.backend.payments.annotation.PortOneIpOnly;
 import com.sesac.backend.payments.dto.request.PaymentVerification;
 import com.sesac.backend.payments.service.PaymentService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -42,7 +44,13 @@ public class PaymentController {
     }
 
     @PostMapping("/webhook")
-    public ResponseEntity<?> handleWebHook(@RequestBody Map<String, String> webHookData) {
+    @PortOneIpOnly
+    public ResponseEntity<?> handleWebHook(HttpServletRequest request, @RequestBody Map<String, String> webHookData) {
+
+        // IP 로깅
+        log.info("📌 Webhook called from IP: {}", request.getRemoteAddr());
+        log.info("📌 Webhook X-Forwarded-For: {}", request.getHeader("X-Forwarded-For"));
+        log.info("📌 Webhook Data: {}", webHookData);
 
         try {
             paymentService.processWebHook(webHookData);
@@ -51,6 +59,7 @@ public class PaymentController {
             ));
 
         } catch (Exception e) {
+            log.error("❌ Webhook processing error", e);  // 에러 로깅
             return ResponseEntity.status(HttpStatus.OK).body(Map.of(
                     "message", "WebHook 응답은 받았으나 연결에 실패하였습니다",
                     "error", e.getMessage()

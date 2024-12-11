@@ -16,7 +16,7 @@ import lombok.*;
 
 @Getter
 @Setter
-@ToString
+@ToString(exclude = {"lectures", "reviews"})
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

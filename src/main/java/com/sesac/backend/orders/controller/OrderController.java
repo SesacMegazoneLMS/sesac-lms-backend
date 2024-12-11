@@ -29,6 +29,8 @@ public class OrderController {
 
         UUID userId = UUID.fromString(authentication.getName());
 
+        System.out.println("orderRequest: " + orderRequest);
+
         try {
             OrderResponse orderResponse = orderService.createOrder(orderRequest, userId);
             return ResponseEntity.ok(Map.of(
@@ -37,6 +39,7 @@ public class OrderController {
                     "totalAmount", orderResponse.getTotalAmount()
             ));
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(
                     "error", e.getMessage()
             ));

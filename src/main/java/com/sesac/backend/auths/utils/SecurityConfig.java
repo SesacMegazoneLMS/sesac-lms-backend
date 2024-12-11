@@ -3,6 +3,7 @@ package com.sesac.backend.auths.utils;
 import static com.sesac.backend.auths.constants.SecurityConstants.*;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -31,23 +32,24 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .securityContext(context -> context
-                .requireExplicitSave(false)  // 비동기 처리시 SecurityContext 자동 전파
-            )
-            .authorizeHttpRequests(auth ->
-                auth
-                    .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
-                    .requestMatchers("GET", "/courses").permitAll()
-                    .requestMatchers(STUDENTS_API).hasRole("STUDENT")
-                    .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
-                    .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .securityContext(context -> context
+                        .requireExplicitSave(false)  // 비동기 처리시 SecurityContext 자동 전파
+                )
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
+                                .requestMatchers("GET", "/courses").permitAll()
+                                .requestMatchers("/payments/webhook").permitAll()
+                                .requestMatchers(STUDENTS_API).hasRole("STUDENT")
+                                .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
+                                .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
