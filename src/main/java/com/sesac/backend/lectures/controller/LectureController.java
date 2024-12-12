@@ -2,15 +2,13 @@ package com.sesac.backend.lectures.controller;
 
 import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
+import com.sesac.backend.lectures.dto.request.VideoCompleteRequest;
 import com.sesac.backend.lectures.dto.response.LectureDetailResponse;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
 import com.sesac.backend.lectures.service.LectureService;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,17 +34,19 @@ public class LectureController {
     public ResponseEntity<Void> handleTranscodingComplete(
         @RequestBody VideoCompleteRequest request
     ) {
-    log.info("Received video complete request: {}", request);
-    try {
+    try {    
+        log.info("Received video complete request: {}", request);
         lectureService.updateVideoStatus(
-                request.getLectureId(),
+            request.getLectureId(),
             request.getVideoKey(),
-            request.getStatus()
+            request.getStatus(),
+            request.getDuration()
         );
         return ResponseEntity.ok().build();
     } catch (Exception e) {
         log.error("Error updating video status: {}", e.getMessage(), e);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        // return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        return ResponseEntity.internalServerError().build();
     }
 }
 
@@ -114,13 +114,4 @@ public class LectureController {
             return ResponseEntity.internalServerError().build();
         }
     }
-}
-
-// 비디오 완료 요청을 위한 DTO 클래스
-@Getter
-@Setter
-class VideoCompleteRequest {
-    private Long lectureId;
-    private String videoKey;
-    private String status;
 }
