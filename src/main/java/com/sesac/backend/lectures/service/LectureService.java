@@ -7,12 +7,10 @@ import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
 import com.sesac.backend.lectures.repository.LectureRepository;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.regions.Region;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
@@ -39,15 +37,17 @@ public class LectureService {
 
     // 비디오 상태 업데이트 메서드
     @Transactional
-    public void updateVideoStatus(Long Id,String videoKey, String status) {
-        // 비디오 키로 강의 조회
-        Lecture lecture = lectureRepository.findById(Id)
-            .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. ID: " + Id));
+    public void updateVideoStatus(Long lectureId, String videoKey, String status, String duration) {
+        Lecture lecture = lectureRepository.findById(lectureId)
+            .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다: " + lectureId));
         
-        // HLS URL 및 상태 업데이트
-        lecture.setStatus(status);
+            log.info("Updating lecture status - ID: {}, videoKey: {}, status: {}, duration: {}", 
+            lectureId, videoKey, status, duration);
+        
         lecture.setVideoKey(videoKey);
-        // 강의 저장
+        lecture.setStatus(status);
+        lecture.setDuration(duration);  // duration 설정
+        
         lectureRepository.save(lecture);
     }
 
@@ -66,7 +66,7 @@ public class LectureService {
             .isFree(request.getIsFree())
             .duration(request.getDuration())
             .status("PROCESSING")  // 초기 상태
-            .cloudFrontUrl("https://dt9kc2k4h1nps.cloudfront.net")  // CloudFront URL 추가
+            .cloudFrontUrl("https://cdn.sesac-univ.click")  // CloudFront URL 추가
             .build();
 
         lecture = lectureRepository.save(lecture);
