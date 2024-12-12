@@ -14,9 +14,7 @@ public class LectureRequest {
     private Long courseId;
     private String title;
     private Integer orderIndex;
-    private Boolean isFree;
     private String duration;
-
     private String videoKey;
     private String status;
 
@@ -39,7 +37,7 @@ public class LectureRequest {
                 .orderIndex(this.orderIndex)
                 .videoKey(this.videoKey)
                 .status(this.status)
-                .cloudFrontUrl("https://cdn.sesac-univ.click")  // CloudFront URL 추가
+                .cloudFrontUrl("https://cdn.sesac-univ.click")
                 .build();
     }
     

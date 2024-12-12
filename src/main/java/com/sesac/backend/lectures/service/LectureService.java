@@ -53,20 +53,17 @@ public class LectureService {
 
     // 강의 생성 메서드
     public LectureResponse createLecture(LectureRequest request) {
-        // 코스 ID로 코스 조회
         Course course = courseRepository.findById(request.getCourseId())
             .orElseThrow(() -> new IllegalArgumentException("코스를 찾을 수 없습니다."));
 
-        // 강의 객체 생성 및 저장
         Lecture lecture = Lecture.builder()
             .course(course)
             .title(request.getTitle())
             .videoKey(request.getVideoKey())
             .orderIndex(request.getOrderIndex())
-            .isFree(request.getIsFree())
             .duration(request.getDuration())
-            .status("PROCESSING")  // 초기 상태
-            .cloudFrontUrl("https://cdn.sesac-univ.click")  // CloudFront URL 추가
+            .status("PROCESSING")
+            .cloudFrontUrl("https://cdn.sesac-univ.click")
             .build();
 
         lecture = lectureRepository.save(lecture);
@@ -109,9 +106,6 @@ public class LectureService {
                     break;
                 case "orderIndex":
                     lecture.setOrderIndex((Integer) value);
-                    break;
-                case "isFree":
-                    lecture.setIsFree((Boolean) value);
                     break;
                 case "duration":
                     lecture.setDuration((String) value);

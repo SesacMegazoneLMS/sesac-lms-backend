@@ -13,7 +13,6 @@ public class LectureDetailResponse {
     private Long courseId;
     private String title;
     private String duration;
-    private Boolean isFree;
     private Integer orderIndex;
     private String videoKey;
     private String cloudFrontUrl;
@@ -25,7 +24,6 @@ public class LectureDetailResponse {
                 .courseId(lecture.getCourse().getId())
                 .title(lecture.getTitle())
                 .duration(lecture.getDuration())
-                .isFree(lecture.getIsFree())
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
                 .cloudFrontUrl(lecture.getCloudFrontUrl())
