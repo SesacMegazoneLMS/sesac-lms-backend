@@ -8,6 +8,7 @@ import com.sesac.backend.lectures.service.LectureService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.HttpStatus;
@@ -36,12 +37,13 @@ public class LectureController {
     public ResponseEntity<Void> handleTranscodingComplete(
         @RequestBody VideoCompleteRequest request
     ) {
-    log.info("Received video complete request: {}", request);
-    try {
+    try {    
+        log.info("Received video complete request: {}", request);
         lectureService.updateVideoStatus(
-                request.getLectureId(),
+            request.getLectureId(),
             request.getVideoKey(),
-            request.getStatus()
+            request.getStatus(),
+            request.getDuration()  // duration 추가
         );
         return ResponseEntity.ok().build();
     } catch (Exception e) {
@@ -119,8 +121,10 @@ public class LectureController {
 // 비디오 완료 요청을 위한 DTO 클래스
 @Getter
 @Setter
+@ToString
 class VideoCompleteRequest {
     private Long lectureId;
     private String videoKey;
     private String status;
+    private String duration;
 }

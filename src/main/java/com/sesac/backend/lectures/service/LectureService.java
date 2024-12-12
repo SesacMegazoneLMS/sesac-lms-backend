@@ -39,15 +39,17 @@ public class LectureService {
 
     // 비디오 상태 업데이트 메서드
     @Transactional
-    public void updateVideoStatus(Long Id,String videoKey, String status) {
-        // 비디오 키로 강의 조회
-        Lecture lecture = lectureRepository.findById(Id)
-            .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다. ID: " + Id));
+    public void updateVideoStatus(Long lectureId, String videoKey, String status, String duration) {
+        Lecture lecture = lectureRepository.findById(lectureId)
+            .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다: " + lectureId));
         
-        // HLS URL 및 상태 업데이트
-        lecture.setStatus(status);
+        log.info("강의 상태 업데이트: ID={}, videoKey={}, status={}, duration={}", 
+                 lectureId, videoKey, status, duration);
+        
         lecture.setVideoKey(videoKey);
-        // 강의 저장
+        lecture.setStatus(status);
+        lecture.setDuration(duration);  // duration 설정
+        
         lectureRepository.save(lecture);
     }
 
