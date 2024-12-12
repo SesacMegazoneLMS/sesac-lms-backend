@@ -2,6 +2,7 @@ package com.sesac.backend.courses.service;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
+import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.courses.repository.CourseRepository;
@@ -10,6 +11,10 @@ import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -57,11 +62,11 @@ public class CourseService {
         courseRepository.save(course);
     }
 
-    public Set<CourseDto> getAllCourses() {
+    public List<CourseDto> getAllCourses() {
 
         List<Course> courses = courseRepository.findAll();
 
-        Set<CourseDto> courseDtos = new HashSet<>();
+        List<CourseDto> courseDtos = new ArrayList<>();
 
         for (Course course : courses) {
 
@@ -133,6 +138,72 @@ public class CourseService {
         }
 
         courseRepository.save(course);
+    }
+
+    public Page<CourseDto> searchCourses(CourseSearchCriteria criteria, PageRequest pageRequest) {
+
+        Sort sort = createSort(criteria.getSort());
+        PageRequest sortedPageRequest = PageRequest.of(
+                pageRequest.getPageNumber(),
+                pageRequest.getPageSize(),
+                sort
+        );
+
+        // 검색 조건에 따른 쿼리 생성
+        Specification<Course> spec = Specification.where(null);
+
+        if (criteria.getCategories() != null && !criteria.getCategories().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.get("category").in(
+                            criteria.getCategories().stream()
+                                    .map(Category::fromValue)
+                                    .collect(Collectors.toList())
+                    ));
+        }
+
+        if (criteria.getLevel() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("level"), Level.from(criteria.getLevel())));
+        }
+
+        if (criteria.getSearch() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(root.get("title"), "%" + criteria.getSearch() + "%"),
+                            cb.like(root.get("description"), "%" + criteria.getSearch() + "%")
+                    ));
+        }
+
+        Page<Course> coursePage = courseRepository.findAll(spec, sortedPageRequest);
+
+        return coursePage.map(course -> CourseDto.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .description(course.getDescription())
+                .price(course.getPrice())
+                .level(course.getLevel().getLevel())
+                .category(course.getCategory().getValue())
+                .thumbnail(course.getThumbnail())
+                .objectives(course.getObjectives())
+                .requirements(course.getRequirements())
+                .skills(course.getSkills())
+                .build());
+    }
+
+    public Sort createSort(String sortType) {
+
+        if (sortType == null) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+
+        return switch (sortType) {
+            case "price_asc" -> Sort.by(Sort.Direction.ASC, "price");
+            case "price_desc" -> Sort.by(Sort.Direction.DESC, "price");
+            case "rating" -> Sort.by(Sort.Direction.DESC, "averageRating");
+            case "newest" -> Sort.by(Sort.Direction.DESC, "createdAt");
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+
+        };
     }
 
     public void deleteCourse(Long courseId, UUID userId) {
