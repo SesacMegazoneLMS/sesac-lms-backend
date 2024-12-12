@@ -40,11 +40,11 @@ public class ReviewService {
         Course course = courseRepository.findById(req.getCourseId()).orElseThrow();
 
         Review review = Review.builder()
-                .writer(user)
-                .course(course)
-                .content(req.getContent())
-                .rating(req.getRating())
-                .build();
+                        .writer(user)
+                        .course(course)
+                        .content(req.getContent())
+                        .rating(req.getRating())
+                        .build();
 
         reviewRepository.save(review);
     }
