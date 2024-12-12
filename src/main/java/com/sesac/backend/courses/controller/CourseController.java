@@ -1,6 +1,8 @@
 package com.sesac.backend.courses.controller;
 
+import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
+import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
@@ -9,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -34,19 +37,18 @@ public class CourseController {
 
         try {
 
-            courseService.createCourse(userId, request);
+            Long courseId = courseService.createCourse(userId, request);
 
             return ResponseEntity.ok(Map.of(
-                    "message", "강의 생성이 완료되었습니다"
+                    "message", "강의 생성이 완료되었습니다",
+                    "courseId", courseId
             ));
 
-        } catch (PersistenceException e) {
+        } catch (DataIntegrityViolationException e) {
             return ResponseEntity.badRequest().body(Map.of(
                     "message", "동일한 이름의 강의가 존재합니다"
             ));
         } catch (RuntimeException e) {
-//            e.printStackTrace();
-//            System.out.println("오류 : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", e.getMessage()
             ));
@@ -134,6 +136,30 @@ public class CourseController {
             ));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    // getMyCourse(Instructor)
+    @GetMapping("/instructor/me")
+    public ResponseEntity<?> getMyCourses(Authentication authentication,
+                                          @RequestParam(defaultValue = "1") int page,
+                                          @RequestParam(defaultValue = "10") int size) {
+        try{
+            List<CourseInstructorDto> courseDtos = courseService.getInstructorsCourses(authentication, page, size);
+
+            if (courseDtos.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                    "message", "등록된 강좌가 없습니다.",
+                    "myCourseList", courseDtos
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                "message", "강좌 목록 호출 성공",
+                "myCourseList", courseDtos
+            ));
+        }catch(Exception e){
+            return ResponseEntity.badRequest().body(Map.of());
         }
     }
 

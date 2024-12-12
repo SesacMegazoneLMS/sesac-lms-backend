@@ -2,14 +2,22 @@ package com.sesac.backend.courses.service;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
+import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
+import com.sesac.backend.reviews.domain.Review;
+import com.sesac.backend.reviews.repository.ReviewRepository;
+import com.sesac.backend.reviews.service.ReviewService;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,14 +29,12 @@ import java.util.stream.Collectors;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-
     private final UserRepository userRepository;
+    private final ReviewRepository reviewRepository;
 
-    public void createCourse(UUID userId, CourseDto request) {
+    public Long createCourse(UUID userId, CourseDto request) {
 
         User user = userRepository.findByUuid(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
-
-        System.out.println("찾은 유저 정보 : " + user);
 
         Course course = Course.builder()
                 .instructor(user)
@@ -52,9 +58,9 @@ public class CourseService {
             course.setLectures(lectures);
         }
 
-        System.out.println("생성할 course 정보 : " + course);
-
         courseRepository.save(course);
+
+        return course.getId();
     }
 
     public Set<CourseDto> getAllCourses() {
@@ -140,5 +146,40 @@ public class CourseService {
         User user = userRepository.findByUuid(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
         courseRepository.deleteByInstructorAndId(user, courseId);
+    }
+
+    public List<CourseInstructorDto> getInstructorsCourses(Authentication authentication, int page, int size) {
+        UUID userId = UUID.fromString(authentication.getName());
+
+        User user = userRepository.findByUuid(userId).orElseThrow(
+            () -> new RuntimeException("유저를 찾을 수 없습니다")
+        );
+
+        Pageable pageable = PageRequest.of(page-1, size);
+
+        Page<Course> instructorCourses = courseRepository.findByInstructor(user, pageable);
+
+        // Course List를 CourseInstructorDto List로 변환
+        List<CourseInstructorDto> courseDtos = instructorCourses.getContent().stream()
+            .map(course -> {
+                // 각 강좌에 대한 리뷰를 조회
+                List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
+
+                // 평균 평점 계산
+                double averageRating = reviews.stream()
+                    .mapToDouble(Review::getRating) // Review에서 평점 가져오기
+                    .average()
+                    .orElse(0.0); // 리뷰가 없을 경우 0.0으로 설정
+
+                return CourseInstructorDto.builder()
+                    .id(course.getId())
+                    .title(course.getTitle())
+                    .averageRating(averageRating) // 평균 평점 설정
+                    .build();
+            })
+            .sorted(Comparator.comparing(CourseInstructorDto::getId)) // id로 정렬
+            .collect(Collectors.toList());
+
+        return courseDtos;
     }
 }
