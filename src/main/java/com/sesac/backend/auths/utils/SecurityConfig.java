@@ -42,6 +42,8 @@ public class SecurityConfig {
                     .requestMatchers("GET", "/courses").permitAll()
                     .requestMatchers("/payments/webhook").permitAll()
                     .requestMatchers("GET", "/courses/{courseId}/reviews").permitAll()
+                    .requestMatchers("GET", "/courses/{courseId}/scores").permitAll()
+                    .requestMatchers("GET", "/reviews/{reviewId}/likes").permitAll()
                     .requestMatchers(STUDENTS_API).hasRole("STUDENT")
                     .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
                     .anyRequest().authenticated()
