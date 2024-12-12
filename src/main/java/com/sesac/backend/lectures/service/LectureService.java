@@ -7,12 +7,10 @@ import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
 import com.sesac.backend.lectures.repository.LectureRepository;
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.regions.Region;
 import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
@@ -43,8 +41,8 @@ public class LectureService {
         Lecture lecture = lectureRepository.findById(lectureId)
             .orElseThrow(() -> new IllegalArgumentException("강의를 찾을 수 없습니다: " + lectureId));
         
-        log.info("강의 상태 업데이트: ID={}, videoKey={}, status={}, duration={}", 
-                 lectureId, videoKey, status, duration);
+            log.info("Updating lecture status - ID: {}, videoKey: {}, status: {}, duration: {}", 
+            lectureId, videoKey, status, duration);
         
         lecture.setVideoKey(videoKey);
         lecture.setStatus(status);
@@ -68,7 +66,7 @@ public class LectureService {
             .isFree(request.getIsFree())
             .duration(request.getDuration())
             .status("PROCESSING")  // 초기 상태
-            .cloudFrontUrl("https://dt9kc2k4h1nps.cloudfront.net")  // CloudFront URL 추가
+            .cloudFrontUrl("https://cdn.sesac-univ.click")  // CloudFront URL 추가
             .build();
 
         lecture = lectureRepository.save(lecture);
