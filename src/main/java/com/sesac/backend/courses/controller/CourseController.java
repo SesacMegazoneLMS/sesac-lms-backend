@@ -1,8 +1,8 @@
 package com.sesac.backend.courses.controller;
 
-import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
+import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
@@ -12,11 +12,14 @@ import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -58,13 +61,34 @@ public class CourseController {
     }
 
     @GetMapping("")
-    public ResponseEntity<?> getAllCourses() {
+    public ResponseEntity<?> getCourses(
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String level,
+            @RequestParam(required = false) String search,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
 
         try {
+            CourseSearchCriteria criteria = CourseSearchCriteria.builder()
+                    .sort(sort)
+                    .category(category)
+                    .level(level)
+                    .search(search)
+                    .build();
+
+            Page<CourseDto> courses = courseService.searchCourses(criteria, PageRequest.of(page, size));
+
+
             return ResponseEntity.ok(Map.of(
                     "message", "전체 강의 목록 로드에 성공했습니다",
-                    "courses", courseService.getAllCourses()
+                    "courses", courses.getContent(),
+                    "totalPages", courses.getTotalPages(),
+                    "totalElements", courses.getTotalElements(),
+                    "currentPage", courses.getNumber()
             ));
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -145,18 +169,24 @@ public class CourseController {
                                           @RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size) {
         try{
-            List<CourseInstructorDto> courseDtos = courseService.getInstructorsCourses(authentication, page, size);
+            Page<CourseInstructorDto> courseDtos = courseService.getInstructorsCourses(authentication, page, size);
 
             if (courseDtos.isEmpty()) {
                 return ResponseEntity.ok(Map.of(
                     "message", "등록된 강좌가 없습니다.",
-                    "myCourseList", courseDtos
+                    "myCourseList", Collections.emptyList(),
+                    "totalPages", 0,
+                    "totalItems", 0,
+                    "currentPage", page
                 ));
             }
 
             return ResponseEntity.ok(Map.of(
                 "message", "강좌 목록 호출 성공",
-                "myCourseList", courseDtos
+                "myCourseList", courseDtos.getContent(),
+                "totalPages", courseDtos.getTotalPages(),
+                "totalItems", courseDtos.getTotalElements(),
+                "currentPage", courseDtos.getNumber() + 1
             ));
         }catch(Exception e){
             return ResponseEntity.badRequest().body(Map.of());

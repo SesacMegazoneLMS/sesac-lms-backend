@@ -31,6 +31,8 @@ public class EnrollmentController {
         try {
             List<EnrollmentResponse> enrolledCourses = enrollmentService.getEnrollmentsByUserUuid(userId);
 
+            log.info("💰 enrolledCourses: {}", enrolledCourses);
+
             if (enrolledCourses.isEmpty()) {
                 return ResponseEntity.ok(Map.of(
                         "message", "수강 중인 강의가 없습니다",

@@ -2,6 +2,7 @@ package com.sesac.backend.enrollments.repository;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.enrollments.domain.Enrollment;
+import com.sesac.backend.orders.constants.OrderedCoursesStatus;
 import com.sesac.backend.orders.domain.OrderedCourses;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,8 +28,11 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             "LEFT JOIN FETCH c.lectures l " +
             "WHERE e.user.uuid = :userUuid " +
             "AND e.isActive = true " +
-            "AND oc.status = 'ACTIVE' " +
+            "AND oc.status = :status " +
             "ORDER BY l.orderIndex ASC")
-    List<Enrollment> findActiveEnrollmentsWithCoursesByUserUuid(@Param("userUuid") UUID userUuid);
+    List<Enrollment> findActiveEnrollmentsWithCoursesByUserUuid(
+            @Param("userUuid") UUID userUuid,
+            @Param("status") OrderedCoursesStatus status
+    );
 
 }

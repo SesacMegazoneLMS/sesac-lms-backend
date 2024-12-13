@@ -13,7 +13,7 @@ public class EnrolledLectureDto {
     private Long id;
     private String title;
     private String duration;
-//    private Boolean isFree;
+    private Boolean isFree;
     private Integer orderIndex;
     private String videoKey;
     private String cloudFrontUrl;

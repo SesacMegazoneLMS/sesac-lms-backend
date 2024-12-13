@@ -30,7 +30,7 @@ public class EnrollmentResponse {
     private List<String> objectives;
     private Integer price;
     private Integer progress;
-    private LocalDateTime enrolledAt;
+    private String enrolledAt;
     private List<EnrolledLectureDto> lectures;
 
 }
