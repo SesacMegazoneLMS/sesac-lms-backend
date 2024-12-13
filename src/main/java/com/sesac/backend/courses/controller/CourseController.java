@@ -1,5 +1,6 @@
 package com.sesac.backend.courses.controller;
 
+import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
@@ -13,12 +14,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -51,8 +52,6 @@ public class CourseController {
                     "message", "동일한 이름의 강의가 존재합니다"
             ));
         } catch (RuntimeException e) {
-//            e.printStackTrace();
-//            System.out.println("오류 : " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
                     "message", e.getMessage()
             ));
@@ -170,18 +169,24 @@ public class CourseController {
                                           @RequestParam(defaultValue = "1") int page,
                                           @RequestParam(defaultValue = "10") int size) {
         try{
-            List<CourseInstructorDto> courseDtos = courseService.getInstructorsCourses(authentication, page, size);
+            Page<CourseInstructorDto> courseDtos = courseService.getInstructorsCourses(authentication, page, size);
 
             if (courseDtos.isEmpty()) {
                 return ResponseEntity.ok(Map.of(
                     "message", "등록된 강좌가 없습니다.",
-                    "myCourseList", courseDtos
+                    "myCourseList", Collections.emptyList(),
+                    "totalPages", 0,
+                    "totalItems", 0,
+                    "currentPage", page
                 ));
             }
 
             return ResponseEntity.ok(Map.of(
                 "message", "강좌 목록 호출 성공",
-                "myCourseList", courseDtos
+                "myCourseList", courseDtos.getContent(),
+                "totalPages", courseDtos.getTotalPages(),
+                "totalItems", courseDtos.getTotalElements(),
+                "currentPage", courseDtos.getNumber() + 1
             ));
         }catch(Exception e){
             return ResponseEntity.badRequest().body(Map.of());
