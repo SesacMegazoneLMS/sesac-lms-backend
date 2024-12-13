@@ -2,9 +2,11 @@ package com.sesac.backend.lectures.service;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.repository.CourseRepository;
+import com.sesac.backend.enrollments.repository.EnrollmentRepository;
 import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
+import com.sesac.backend.lectures.dto.response.LectureStudentResponse;
 import com.sesac.backend.lectures.repository.LectureRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,8 +18,11 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 // 서비스 클래스 어노테이션
 @Service
@@ -32,6 +37,7 @@ public class LectureService {
     private final LectureRepository lectureRepository;
     private final CourseRepository courseRepository;
     private final S3Client s3Client;
+    private final EnrollmentRepository enrollmentRepository;
 
     private static final String BUCKET_NAME = "hip-media-input"; // S3 버킷 이름
 
@@ -185,4 +191,6 @@ public class LectureService {
             throw new RuntimeException("HLS 파일 삭제 실패", e);
         }
     }
+
+    
 }
