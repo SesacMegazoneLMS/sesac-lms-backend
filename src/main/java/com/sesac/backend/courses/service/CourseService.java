@@ -100,6 +100,7 @@ public class CourseService {
         Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("강의가 존재하지 않습니다"));
 
         return CourseDto.builder()
+                .id(course.getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .level(course.getLevel().getLevel())
