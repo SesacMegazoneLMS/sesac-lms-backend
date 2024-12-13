@@ -148,7 +148,7 @@ public class CourseService {
         courseRepository.deleteByInstructorAndId(user, courseId);
     }
 
-    public List<CourseInstructorDto> getInstructorsCourses(Authentication authentication, int page, int size) {
+    public Page<CourseInstructorDto> getInstructorsCourses(Authentication authentication, int page, int size) {
         UUID userId = UUID.fromString(authentication.getName());
 
         User user = userRepository.findByUuid(userId).orElseThrow(
@@ -159,27 +159,22 @@ public class CourseService {
 
         Page<Course> instructorCourses = courseRepository.findByInstructor(user, pageable);
 
-        // Course List를 CourseInstructorDto List로 변환
-        List<CourseInstructorDto> courseDtos = instructorCourses.getContent().stream()
-            .map(course -> {
-                // 각 강좌에 대한 리뷰를 조회
-                List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
+        // Course List를 CourseInstructorDto List로 변환 & Page 유지
+        return instructorCourses.map(course -> {
+            // 각 강좌에 대한 리뷰를 조회
+            List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
 
-                // 평균 평점 계산
-                double averageRating = reviews.stream()
-                    .mapToDouble(Review::getRating) // Review에서 평점 가져오기
-                    .average()
-                    .orElse(0.0); // 리뷰가 없을 경우 0.0으로 설정
+            // 평균 평점 계산
+            double averageRating = reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
 
-                return CourseInstructorDto.builder()
-                    .id(course.getId())
-                    .title(course.getTitle())
-                    .averageRating(averageRating) // 평균 평점 설정
-                    .build();
-            })
-            .sorted(Comparator.comparing(CourseInstructorDto::getId)) // id로 정렬
-            .collect(Collectors.toList());
-
-        return courseDtos;
+            return CourseInstructorDto.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .averageRating(averageRating)
+                .build();
+        });
     }
 }
