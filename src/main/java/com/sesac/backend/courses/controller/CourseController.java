@@ -1,6 +1,5 @@
 package com.sesac.backend.courses.controller;
 
-import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
@@ -14,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
