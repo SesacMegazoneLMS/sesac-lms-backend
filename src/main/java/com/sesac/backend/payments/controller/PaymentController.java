@@ -2,6 +2,7 @@ package com.sesac.backend.payments.controller;
 
 import com.sesac.backend.payments.annotation.PortOneIpOnly;
 import com.sesac.backend.payments.dto.request.PaymentVerification;
+import com.sesac.backend.payments.dto.response.PortOnePaymentWebHookResponse;
 import com.sesac.backend.payments.service.PaymentService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class PaymentController {
 
     @PostMapping("/webhook")
     @PortOneIpOnly
-    public ResponseEntity<?> handleWebHook(HttpServletRequest request, @RequestBody Map<String, String> webHookData) {
+    public ResponseEntity<?> handleWebHook(HttpServletRequest request, @RequestBody PortOnePaymentWebHookResponse webHookData) {
 
         // IP 로깅
         log.info("📌 Webhook called from IP: {}", request.getRemoteAddr());

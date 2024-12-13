@@ -3,6 +3,7 @@ package com.sesac.backend.courses.service;
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
+import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.courses.repository.CourseRepository;
@@ -10,15 +11,17 @@ import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.reviews.repository.ReviewRepository;
-import com.sesac.backend.reviews.service.ReviewService;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,6 +32,7 @@ import java.util.stream.Collectors;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
 
@@ -63,11 +67,11 @@ public class CourseService {
         return course.getId();
     }
 
-    public Set<CourseDto> getAllCourses() {
+    public List<CourseDto> getAllCourses() {
 
         List<Course> courses = courseRepository.findAll();
 
-        Set<CourseDto> courseDtos = new HashSet<>();
+        List<CourseDto> courseDtos = new ArrayList<>();
 
         for (Course course : courses) {
 
@@ -141,6 +145,69 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    @Transactional(readOnly = true)
+    public Page<CourseDto> searchCourses(CourseSearchCriteria criteria, PageRequest pageRequest) {
+
+        Sort sort = createSort(criteria.getSort());
+        PageRequest sortedPageRequest = PageRequest.of(
+                pageRequest.getPageNumber(),
+                pageRequest.getPageSize(),
+                sort
+        );
+
+        // 검색 조건에 따른 쿼리 생성
+        Specification<Course> spec = Specification.where(null);
+
+        if (criteria.getCategory() != null && !criteria.getCategory().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("category"), Category.fromValue(criteria.getCategory())));
+        }
+
+        if (criteria.getLevel() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.equal(root.get("level"), Level.from(criteria.getLevel())));
+        }
+
+        if (criteria.getSearch() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.or(
+                            cb.like(root.get("title"), "%" + criteria.getSearch() + "%"),
+                            cb.like(root.get("description"), "%" + criteria.getSearch() + "%")
+                    ));
+        }
+
+        Page<Course> coursePage = courseRepository.findAll(spec, sortedPageRequest);
+
+        return coursePage.map(course -> CourseDto.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .description(course.getDescription())
+                .price(course.getPrice())
+                .level(course.getLevel().getLevel())
+                .category(course.getCategory().getValue())
+                .thumbnail(course.getThumbnail())
+                .objectives(course.getObjectives())
+                .requirements(course.getRequirements())
+                .skills(course.getSkills())
+                .build());
+    }
+
+    public Sort createSort(String sortType) {
+
+        if (sortType == null) {
+            return Sort.by(Sort.Direction.DESC, "createdAt");
+        }
+
+        return switch (sortType) {
+            case "price_asc" -> Sort.by(Sort.Direction.ASC, "price");
+            case "price_desc" -> Sort.by(Sort.Direction.DESC, "price");
+            case "rating" -> Sort.by(Sort.Direction.DESC, "averageRating");
+            case "newest" -> Sort.by(Sort.Direction.DESC, "createdAt");
+            default -> Sort.by(Sort.Direction.DESC, "createdAt");
+
+        };
+    }
+
     public void deleteCourse(Long courseId, UUID userId) {
 
         User user = userRepository.findByUuid(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
@@ -148,7 +215,7 @@ public class CourseService {
         courseRepository.deleteByInstructorAndId(user, courseId);
     }
 
-    public List<CourseInstructorDto> getInstructorsCourses(Authentication authentication, int page, int size) {
+    public Page<CourseInstructorDto> getInstructorsCourses(Authentication authentication, int page, int size) {
         UUID userId = UUID.fromString(authentication.getName());
 
         User user = userRepository.findByUuid(userId).orElseThrow(
@@ -159,27 +226,22 @@ public class CourseService {
 
         Page<Course> instructorCourses = courseRepository.findByInstructor(user, pageable);
 
-        // Course List를 CourseInstructorDto List로 변환
-        List<CourseInstructorDto> courseDtos = instructorCourses.getContent().stream()
-            .map(course -> {
-                // 각 강좌에 대한 리뷰를 조회
-                List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
+        // Course List를 CourseInstructorDto List로 변환 & Page 유지
+        return instructorCourses.map(course -> {
+            // 각 강좌에 대한 리뷰를 조회
+            List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
 
-                // 평균 평점 계산
-                double averageRating = reviews.stream()
-                    .mapToDouble(Review::getRating) // Review에서 평점 가져오기
-                    .average()
-                    .orElse(0.0); // 리뷰가 없을 경우 0.0으로 설정
+            // 평균 평점 계산
+            double averageRating = reviews.stream()
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
 
-                return CourseInstructorDto.builder()
-                    .id(course.getId())
-                    .title(course.getTitle())
-                    .averageRating(averageRating) // 평균 평점 설정
-                    .build();
-            })
-            .sorted(Comparator.comparing(CourseInstructorDto::getId)) // id로 정렬
-            .collect(Collectors.toList());
-
-        return courseDtos;
+            return CourseInstructorDto.builder()
+                .id(course.getId())
+                .title(course.getTitle())
+                .averageRating(averageRating)
+                .build();
+        });
     }
 }
