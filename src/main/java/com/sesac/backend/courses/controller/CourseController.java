@@ -176,18 +176,20 @@ public class CourseController {
     @GetMapping("/{courseId}/reviews")
     public ResponseEntity<?> getAllReviewsInCourse(@PathVariable Long courseId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
         try{
-            List<ReviewResponse> reviews = reviewService.getReviews(courseId, page, size);
+            Page<ReviewResponse> reviews = reviewService.getReviews(courseId, page, size);
 
             if (reviews.isEmpty()) {
                 return ResponseEntity.ok(Map.of(
                     "message", "수강평이 없습니다.",
-                    "reviews", reviews
+                    "reviews", reviews,
+                    "totalPages", reviews.getTotalPages()
                 ));
             }
 
             return ResponseEntity.ok(Map.of(
                 "message", "수강평 목록 호출 성공",
-                "reviews", reviews
+                "reviews", reviews,
+                "totalPages", reviews.getTotalPages()
             ));
         }catch (EntityNotFoundException e){
             return ResponseEntity.noContent().build();
