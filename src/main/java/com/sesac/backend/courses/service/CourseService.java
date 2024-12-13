@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -140,6 +141,7 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    @Transactional(readOnly = true)
     public Page<CourseDto> searchCourses(CourseSearchCriteria criteria, PageRequest pageRequest) {
 
         Sort sort = createSort(criteria.getSort());
@@ -152,13 +154,9 @@ public class CourseService {
         // 검색 조건에 따른 쿼리 생성
         Specification<Course> spec = Specification.where(null);
 
-        if (criteria.getCategories() != null && !criteria.getCategories().isEmpty()) {
+        if (criteria.getCategory() != null && !criteria.getCategory().isEmpty()) {
             spec = spec.and((root, query, cb) ->
-                    root.get("category").in(
-                            criteria.getCategories().stream()
-                                    .map(Category::fromValue)
-                                    .collect(Collectors.toList())
-                    ));
+                    cb.equal(root.get("category"), Category.fromValue(criteria.getCategory())));
         }
 
         if (criteria.getLevel() != null) {

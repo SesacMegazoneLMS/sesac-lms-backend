@@ -25,6 +25,7 @@ import java.util.UUID;
 @RequestMapping("/courses")
 @RestController
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class CourseController {
 
     private final CourseService courseService;
@@ -61,7 +62,7 @@ public class CourseController {
     @GetMapping("")
     public ResponseEntity<?> getCourses(
             @RequestParam(required = false) String sort,
-            @RequestParam(required = false) List<String> categories,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) String level,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "0") int page,
@@ -71,7 +72,7 @@ public class CourseController {
         try {
             CourseSearchCriteria criteria = CourseSearchCriteria.builder()
                     .sort(sort)
-                    .categories(categories)
+                    .category(category)
                     .level(level)
                     .search(search)
                     .build();

@@ -14,7 +14,7 @@ public class CourseSearchCriteria {
 
     private String sort;
 
-    private List<String> categories;
+    private String category;
 
     private String level;
 

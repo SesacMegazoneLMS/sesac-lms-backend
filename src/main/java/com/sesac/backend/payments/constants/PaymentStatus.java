@@ -1,7 +1,7 @@
 package com.sesac.backend.payments.constants;
 
 public enum PaymentStatus {
-    READY,
+    PENDING,
     PAID,
     CANCELLED,
     FAILED,
