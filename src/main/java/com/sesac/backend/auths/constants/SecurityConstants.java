@@ -14,6 +14,6 @@ public class SecurityConstants {
     public static final String STUDENTS_API = "/students/**";
     public static final String INSTRUCTORS_API = "/instructors/**";
 
-    public static final String KEY_USERNAME = "cognito:username";
+    public static final String KEY_USERNAME = "sub";
     public static final String KEY_USER_TYPE = "custom:userType";
 }
