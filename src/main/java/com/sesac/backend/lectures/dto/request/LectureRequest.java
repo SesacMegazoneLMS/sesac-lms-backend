@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LectureRequest {
+    private Long id;
     private Long courseId;
     private String title;
     private Integer orderIndex;
@@ -20,6 +21,7 @@ public class LectureRequest {
 
     public static LectureRequest from(Lecture lecture) {
         return LectureRequest.builder()
+                .id(lecture.getId())
                 .courseId(lecture.getId())
                 .title(lecture.getTitle())
                 .duration(lecture.getDuration())
