@@ -5,8 +5,8 @@ import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.enrollments.repository.EnrollmentRepository;
 import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
+import com.sesac.backend.lectures.dto.response.LectureNavigation;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
-import com.sesac.backend.lectures.dto.response.LectureStudentResponse;
 import com.sesac.backend.lectures.repository.LectureRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,10 +18,8 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 // 서비스 클래스 어노테이션
@@ -94,6 +92,15 @@ public class LectureService {
     @Transactional(readOnly = true)
     public List<Lecture> getLecturesByCourseId(Long courseId) {
         return lectureRepository.findByCourseId(courseId);
+    }
+    
+    // 강의 네비게이션 조회
+    @Transactional(readOnly = true)
+    public List<LectureNavigation> getLectureNavigation(Long courseId) {
+        List<Lecture> lectures = lectureRepository.findByCourseId(courseId);
+        return lectures.stream()
+            .map(LectureNavigation::from)
+            .collect(Collectors.toList());
     }
 
 
