@@ -21,7 +21,6 @@ public class Lecture {
     @JoinColumn(name = "course_id")
     private Course course; // 강의가 속한 코스
     private String title; // 강의 제목
-    private Boolean isFree;
     private Integer orderIndex;  // 강의 순서
 
     //영상정보
