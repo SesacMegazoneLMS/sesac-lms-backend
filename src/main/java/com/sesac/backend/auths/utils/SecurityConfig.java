@@ -40,6 +40,7 @@ public class SecurityConfig {
                 auth
                     .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
                     .requestMatchers("GET", "/courses").permitAll()
+                    .requestMatchers("GET", "/courses/{courseId}").permitAll()
                     .requestMatchers("/payments/webhook").permitAll()
                     .requestMatchers("GET", "/courses/{courseId}/reviews").permitAll()
                     .requestMatchers("GET", "/courses/{courseId}/scores").permitAll()
