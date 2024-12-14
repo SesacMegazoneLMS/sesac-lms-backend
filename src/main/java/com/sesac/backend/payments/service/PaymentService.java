@@ -78,16 +78,27 @@ public class PaymentService {
             // 4. API 검증
             validatePayment(order, portOnePayment.getResponse());
 
-            // 5. 결제 정보 생성 (PENDING 상태로)
+            // 5. 결제 정보 생성 및 완료 처리
             Payment payment = existingPayment.orElseGet(() -> Payment.builder()
                     .order(order)
                     .impUid(impUid)
                     .amount(order.getTotalAmount())
                     .build());
 
-            payment.setPaymentStatus(PaymentStatus.PENDING);
+            payment.setPaymentStatus(PaymentStatus.PAID);
+            payment.setPaidAt(LocalDateTime.now());
             payment.setMethod(portOnePayment.getResponse().getPay_method());
+
+            // 주문 상태 변경
+            order.setOrderStatus(OrderStatus.PAID);
+            order.getOrderedCourses().forEach(orderedCourse -> {
+                orderedCourse.setStatus(OrderedCoursesStatus.ACTIVE);
+            });
+
             paymentRepository.save(payment);
+
+            // 수강 정보 생성
+            createEnrolledCourse(order);
 
         } catch (Exception e) {
             log.error("Payment API verification failed", e);
