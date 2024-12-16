@@ -12,8 +12,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderRequest {
 
-    private Long userId;
-
     private List<OrderedCourseInfoForRequest> courses;
 
     private Integer totalAmount;

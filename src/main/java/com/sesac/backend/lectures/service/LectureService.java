@@ -2,8 +2,10 @@ package com.sesac.backend.lectures.service;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.repository.CourseRepository;
+import com.sesac.backend.enrollments.repository.EnrollmentRepository;
 import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
+import com.sesac.backend.lectures.dto.response.LectureNavigation;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
 import com.sesac.backend.lectures.repository.LectureRepository;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 // 서비스 클래스 어노테이션
 @Service
@@ -32,6 +35,7 @@ public class LectureService {
     private final LectureRepository lectureRepository;
     private final CourseRepository courseRepository;
     private final S3Client s3Client;
+    private final EnrollmentRepository enrollmentRepository;
 
     private static final String BUCKET_NAME = "hip-media-input"; // S3 버킷 이름
 
@@ -53,20 +57,17 @@ public class LectureService {
 
     // 강의 생성 메서드
     public LectureResponse createLecture(LectureRequest request) {
-        // 코스 ID로 코스 조회
         Course course = courseRepository.findById(request.getCourseId())
             .orElseThrow(() -> new IllegalArgumentException("코스를 찾을 수 없습니다."));
 
-        // 강의 객체 생성 및 저장
         Lecture lecture = Lecture.builder()
             .course(course)
             .title(request.getTitle())
             .videoKey(request.getVideoKey())
             .orderIndex(request.getOrderIndex())
-            .isFree(request.getIsFree())
             .duration(request.getDuration())
-            .status("PROCESSING")  // 초기 상태
-            .cloudFrontUrl("https://cdn.sesac-univ.click")  // CloudFront URL 추가
+            .status("PROCESSING")
+            .cloudFrontUrl("https://cdn.sesac-univ.click")
             .build();
 
         lecture = lectureRepository.save(lecture);
@@ -92,6 +93,15 @@ public class LectureService {
     public List<Lecture> getLecturesByCourseId(Long courseId) {
         return lectureRepository.findByCourseId(courseId);
     }
+    
+    // 강의 네비게이션 조회
+    @Transactional(readOnly = true)
+    public List<LectureNavigation> getLectureNavigation(Long courseId) {
+        List<Lecture> lectures = lectureRepository.findByCourseId(courseId);
+        return lectures.stream()
+            .map(LectureNavigation::from)
+            .collect(Collectors.toList());
+    }
 
 
     //강의 수정 메서드 
@@ -109,9 +119,6 @@ public class LectureService {
                     break;
                 case "orderIndex":
                     lecture.setOrderIndex((Integer) value);
-                    break;
-                case "isFree":
-                    lecture.setIsFree((Boolean) value);
                     break;
                 case "duration":
                     lecture.setDuration((String) value);
@@ -191,4 +198,6 @@ public class LectureService {
             throw new RuntimeException("HLS 파일 삭제 실패", e);
         }
     }
+
+    
 }
