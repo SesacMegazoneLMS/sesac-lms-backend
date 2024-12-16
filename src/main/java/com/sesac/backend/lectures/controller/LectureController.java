@@ -4,7 +4,9 @@ import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.lectures.dto.request.VideoCompleteRequest;
 import com.sesac.backend.lectures.dto.response.LectureDetailResponse;
+import com.sesac.backend.lectures.dto.response.LectureNavigation;
 import com.sesac.backend.lectures.dto.response.LectureResponse;
+import com.sesac.backend.lectures.dto.response.LectureVideoResponse;
 import com.sesac.backend.lectures.service.LectureService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,7 @@ public class LectureController {
     // 강의 서비스 의존성 주입
     private final LectureService lectureService;
 
-    // 비디오 변환 완료 요청을 처리하는 엔드포인트
+    // 비디오 변환 완료 요청을 처리��는 엔드포인트
     @PostMapping("/video/complete")
     public ResponseEntity<Void> handleTranscodingComplete(
         @RequestBody VideoCompleteRequest request
@@ -114,4 +116,15 @@ public class LectureController {
             return ResponseEntity.internalServerError().build();
         }
     }
+
+    // 강의 비디오 조회
+    @GetMapping("/course/{courseId}/video/{lectureId}")
+    public ResponseEntity<LectureVideoResponse> getLectureVideo(@PathVariable Long courseId, @PathVariable Long lectureId) {
+        Lecture lecture = lectureService.getLecture(lectureId);
+        List<LectureNavigation> navigation = lectureService.getLectureNavigation(courseId);
+        return ResponseEntity.ok(LectureVideoResponse.from(lecture, navigation));
+    }
+
+
+
 }

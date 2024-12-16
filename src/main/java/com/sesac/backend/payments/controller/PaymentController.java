@@ -44,27 +44,27 @@ public class PaymentController {
 
     }
 
-    @PostMapping("/webhook")
-    @PortOneIpOnly
-    public ResponseEntity<?> handleWebHook(HttpServletRequest request, @RequestBody PortOnePaymentWebHookResponse webHookData) {
-
-        // IP 로깅
-        log.info("📌 Webhook called from IP: {}", request.getRemoteAddr());
-        log.info("📌 Webhook X-Forwarded-For: {}", request.getHeader("X-Forwarded-For"));
-        log.info("📌 Webhook Data: {}", webHookData);
-
-        try {
-            paymentService.processWebHook(webHookData);
-            return ResponseEntity.ok(Map.of(
-                    "message", "WebHook 연결이 성공적으로 진행되었습니다"
-            ));
-
-        } catch (Exception e) {
-            log.error("❌ Webhook processing error", e);  // 에러 로깅
-            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-                    "message", "WebHook 응답은 받았으나 연결에 실패하였습니다",
-                    "error", e.getMessage()
-            ));
-        }
-    }
+//    @PostMapping("/webhook")
+//    @PortOneIpOnly
+//    public ResponseEntity<?> handleWebHook(HttpServletRequest request, @RequestBody PortOnePaymentWebHookResponse webHookData) {
+//
+//        // IP 로깅
+//        log.info("📌 Webhook called from IP: {}", request.getRemoteAddr());
+//        log.info("📌 Webhook X-Forwarded-For: {}", request.getHeader("X-Forwarded-For"));
+//        log.info("📌 Webhook Data: {}", webHookData);
+//
+//        try {
+//            paymentService.processWebHook(webHookData);
+//            return ResponseEntity.ok(Map.of(
+//                    "message", "WebHook 연결이 성공적으로 진행되었습니다"
+//            ));
+//
+//        } catch (Exception e) {
+//            log.error("❌ Webhook processing error", e);  // 에러 로깅
+//            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+//                    "message", "WebHook 응답은 받았으나 연결에 실패하였습니다",
+//                    "error", e.getMessage()
+//            ));
+//        }
+//    }
 }

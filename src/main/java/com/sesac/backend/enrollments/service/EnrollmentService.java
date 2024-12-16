@@ -74,7 +74,6 @@ public class EnrollmentService {
                 .id(lecture.getId())
                 .title(lecture.getTitle())
                 .duration(lecture.getDuration())
-                .isFree(lecture.getIsFree())
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
                 .cloudFrontUrl(lecture.getCloudFrontUrl())

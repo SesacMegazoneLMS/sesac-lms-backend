@@ -72,7 +72,7 @@ public class ReviewService {
     }
 
     // 강좌별 수강평 목록 출력
-    public List<ReviewResponse> getReviews(Long courseId, int page, int size){
+    public Page<ReviewResponse> getReviews(Long courseId, int page, int size){
         // 강좌 존재 여부 확인
         if (!courseRepository.existsById(courseId)) {
             throw new EntityNotFoundException("존재하지 않는 강좌입니다."); // 예외 처리
@@ -81,20 +81,14 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page-1, size);
         Page<Review> reviews = reviewRepository.findByCourse_Id(courseId, pageable);
 
-        List<ReviewResponse> res = new ArrayList<>();
-
-        for(Review review : reviews){
-            res.add(ReviewResponse.builder()
-                .id(review.getId())
-                .writer(review.getWriter().getNickname())
-                .content(review.getContent())
-                .rating(review.getRating())
-                .likes(review.getLikes())
-                .helpful(review.getHelpful())
-                .build());
-        }
-
-        return res;
+        return reviews.map(review -> ReviewResponse.builder()
+                        .id(review.getId())
+                        .writer(review.getWriter().getNickname())
+                        .content(review.getContent())
+                        .rating(review.getRating())
+                        .likes(review.getLikes())
+                        .helpful(review.getHelpful())
+                        .build());
     }
 
     // 수강평 수정----------------------------------------------

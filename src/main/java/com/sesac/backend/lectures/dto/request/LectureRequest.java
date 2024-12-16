@@ -11,17 +11,17 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class LectureRequest {
+    private Long id;
     private Long courseId;
     private String title;
     private Integer orderIndex;
-    private Boolean isFree;
     private String duration;
-
     private String videoKey;
     private String status;
 
     public static LectureRequest from(Lecture lecture) {
         return LectureRequest.builder()
+                .id(lecture.getId())
                 .courseId(lecture.getId())
                 .title(lecture.getTitle())
                 .duration(lecture.getDuration())
@@ -39,7 +39,7 @@ public class LectureRequest {
                 .orderIndex(this.orderIndex)
                 .videoKey(this.videoKey)
                 .status(this.status)
-                .cloudFrontUrl("https://cdn.sesac-univ.click")  // CloudFront URL 추가
+                .cloudFrontUrl("https://cdn.sesac-univ.click")
                 .build();
     }
     

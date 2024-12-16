@@ -8,25 +8,19 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LectureDetailResponse {
+public class LectureNavigation {
     private Long id;
-    private Long courseId;
     private String title;
-    private String duration;
     private Integer orderIndex;
-    private String videoKey;
-    private String cloudFrontUrl;
+    private String duration;
     private String status;
 
-    public static LectureDetailResponse from(Lecture lecture) {
-        return LectureDetailResponse.builder()
+    public static LectureNavigation from(Lecture lecture) {
+        return LectureNavigation.builder()
                 .id(lecture.getId())
-                .courseId(lecture.getCourse().getId())
                 .title(lecture.getTitle())
-                .duration(lecture.getDuration())
                 .orderIndex(lecture.getOrderIndex())
-                .videoKey(lecture.getVideoKey())
-                .cloudFrontUrl(lecture.getCloudFrontUrl())
+                .duration(lecture.getDuration())
                 .status(lecture.getStatus())
                 .build();
     }
