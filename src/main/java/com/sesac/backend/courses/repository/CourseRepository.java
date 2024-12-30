@@ -27,6 +27,4 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     List<Long> findCourseIdsByInstructorId(Long instructorId);
 
-    @Query("SELECT AVG(e.price) FROM Course e WHERE e.id IN :ids")
-    Double averagePriceByIds(@Param("ids") List<Long> ids);
 }
