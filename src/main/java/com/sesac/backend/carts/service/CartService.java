@@ -106,7 +106,7 @@ public class CartService {
     //--------------------------------------------------------------
 
     // 장바구니에서 삭제------------------------------------------------
-    public void removeCourseFromCart(UUID userId, int index) {
+    public void removeCourseFromCart(UUID userId, List<Integer> indexes) {
         try {
             User user = userRepository.findByUuid(userId).orElseThrow();
             Cart cart = cartRepository.findByUser(user).orElseThrow();
@@ -118,8 +118,14 @@ public class CartService {
 
             ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
 
-            // 특정 인덱스 삭제
-            cartInfo.remove(String.valueOf(index));
+            // 특정 인덱스들 삭제
+            if (indexes != null && !indexes.isEmpty()){
+                for (Integer index : indexes) {
+                    cartInfo.remove(String.valueOf(index));
+                }
+            } else {
+                throw new IllegalArgumentException("삭제할 항목이 없습니다.");
+            }
 
             // 인덱스 재정렬
             ObjectNode reorderedCartInfo = reorderCartInfo(cartInfo);

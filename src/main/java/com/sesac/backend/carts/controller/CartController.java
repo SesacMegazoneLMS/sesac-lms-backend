@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
@@ -44,10 +45,10 @@ public class CartController {
     }
 
     //장바구니 삭제
-    @DeleteMapping("/items/{index}")
-    public ResponseEntity<String> deleteItem(@PathVariable Integer index, @CurrentUser UUID USER_ID) {
+    @DeleteMapping("/items")
+    public ResponseEntity<String> deleteItems(@RequestBody List<Integer> indexes, @CurrentUser UUID USER_ID) {
         try{
-            cartService.removeCourseFromCart(USER_ID, index);
+            cartService.removeCourseFromCart(USER_ID, indexes);
             return ResponseEntity.ok("성공적으로 삭제되었습니다.");
         }catch (SecurityException e){
             return ResponseEntity.badRequest().body(e.getMessage());
