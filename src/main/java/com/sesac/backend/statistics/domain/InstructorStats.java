@@ -8,8 +8,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.statistics.dto.MonthlyStatsData;
 import com.sesac.backend.users.domain.User;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.annotations.Type;
 
 import java.math.BigDecimal;
 
@@ -19,6 +22,7 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Slf4j
 public class InstructorStats extends BaseEntity {
 
     @Id
@@ -38,29 +42,65 @@ public class InstructorStats extends BaseEntity {
     private Double averageRating;
 
     @Column(columnDefinition = "jsonb")
+    @Type(JsonBinaryType.class)
     private String monthlyStats;
 
     @Transient
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public void updateMonthlyStats(int year, int month, MonthlyStatsData data) {
 
+        log.info("Entering updateMonthlyStats - year: {}, month: {}, data: {}", year, month, data);
+
         try {
+//            ObjectNode rootNode;
+//            log.info("Current monthlyStats value: {}", monthlyStats);
+//            if (monthlyStats == null || monthlyStats.isEmpty()) {
+//                log.info("Creating new root node");
+//                rootNode = objectMapper.createObjectNode();
+//            } else {
+//                log.info("Parsing existing monthlyStats");
+//                rootNode = (ObjectNode) objectMapper.readTree(monthlyStats);
+//            }
+//
+//            log.info("Checking year node: {}", String.valueOf(year));
+//            if (!rootNode.has(String.valueOf(year))) {
+//                rootNode.putObject(String.valueOf(year));
+//            }
+//
+//            log.info("Attempting to update month data");
+//            ((ObjectNode) rootNode.get(String.valueOf(year))).putPOJO(String.valueOf(month), data);
+//
+//            String newStats = objectMapper.writeValueAsString(rootNode);
+//            log.info("New monthlyStats value: {}", newStats);
+//
+//            this.monthlyStats = newStats;
+//            log.info("Successfully updated monthlyStats");
+
             ObjectNode rootNode;
-            if (monthlyStats == null || monthlyStats.isEmpty()) {
+            if (monthlyStats == null || monthlyStats.isBlank()) {
                 rootNode = objectMapper.createObjectNode();
             } else {
                 rootNode = (ObjectNode) objectMapper.readTree(monthlyStats);
             }
-            if (!rootNode.has(String.valueOf(year))) {
-                rootNode.putObject(String.valueOf(year));
+
+            String yearKey = String.valueOf(year);
+            if (!rootNode.has(yearKey)) {
+                rootNode.putObject(yearKey);
             }
 
-            ((ObjectNode) rootNode.get(String.valueOf(year))).putPOJO(String.valueOf(month), data);
+            ObjectNode yearNode = (ObjectNode) rootNode.get(yearKey);
+            yearNode.set(String.valueOf(month), objectMapper.valueToTree(data));
 
             this.monthlyStats = objectMapper.writeValueAsString(rootNode);
+            log.info("Successfully updated monthlyStats");
+
         } catch (JsonProcessingException e) {
+            log.error("Error in updateMonthlyStats", e);
             throw new RuntimeException("월별 통계 업데이트 중 오류 발생", e);
+        } catch (Exception e) {
+            log.error("Unexpected error in updateMonthlyStats", e);
+            throw new RuntimeException("예상치 못한 오류 발생", e);
         }
 
     }

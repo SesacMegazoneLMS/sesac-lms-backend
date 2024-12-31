@@ -15,14 +15,15 @@ public class StatsUpdateScheduler {
 
     private final InstructorStatsService instructorStatsService;
 
-    @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
-    public void updateDailyStats() {
-        log.info("Starting daily statistics update at {}", LocalDateTime.now());
+    // 테스트용: 1분마다 실행
+    @Scheduled(fixedRate = 60000)
+    public void updateTestStats() {
+        log.info("Starting test statistics update at {}", LocalDateTime.now());
         try {
             instructorStatsService.updateAllInstructorsMonthlyStats();
-            log.info("Completed daily statistics update at {}", LocalDateTime.now());
+            log.info("Completed test statistics update at {}", LocalDateTime.now());
         } catch (Exception e) {
-            log.error("Error during daily statistics update", e);
+            log.error("Error during test statistics update", e);
         }
     }
 }

@@ -15,15 +15,26 @@ public interface OrderedCoursesRepository extends JpaRepository<OrderedCourses, 
 
     List<OrderedCourses> findAllByCourse(Course course);
 
-    @Query("SELECT SUM(e.price) FROM OrderedCourses e WHERE e.id IN :ids")
+    boolean existsByCourse(Course course);
+
+    @Query("SELECT SUM(e.price) FROM OrderedCourses e WHERE e.course.id IN :ids")
     BigDecimal sumPriceByIds(@Param("ids") List<Long> ids);
 
+    @Query("SELECT COUNT(oc) FROM OrderedCourses oc " +
+            "WHERE oc.course.id IN :sortedCourseIds " +
+            "AND EXTRACT(YEAR FROM oc.createdAt) = :year " +
+            "AND EXTRACT(MONTH FROM oc.createdAt) = :month")
+    Integer countNewEnrollmentsForMonth(
+            @Param("sortedCourseIds") List<Long> sortedCourseIds,
+            @Param("year") int year,
+            @Param("month") int month);
+
     @Query("SELECT SUM(oc.price) FROM OrderedCourses oc " +
-            "WHERE oc.course.id IN :courseIds " +
-            "AND YEAR(oc.createdAt) = :year " +
-            "AND MONTH(oc.createdAt) = :month")
+            "WHERE oc.course.id IN :sortedCourseIds " +
+            "AND EXTRACT(YEAR FROM oc.createdAt) = :year " +
+            "AND EXTRACT(MONTH FROM oc.createdAt) = :month")
     BigDecimal calculateMonthlyRevenue(
-            @Param("courseIds") List<Long> courseIds,
+            @Param("sortedCourseIds") List<Long> sortedCourseIds,
             @Param("year") int year,
             @Param("month") int month);
 

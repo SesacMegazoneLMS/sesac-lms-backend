@@ -8,6 +8,7 @@ import com.sesac.backend.orders.domain.OrderedCourses;
 import com.sesac.backend.orders.repository.OrderedCoursesRepository;
 import com.sesac.backend.reviews.repository.ReviewRepository;
 import com.sesac.backend.statistics.domain.InstructorStats;
+import com.sesac.backend.statistics.dto.CourseIdsDto;
 import com.sesac.backend.statistics.dto.InstructorStatsDto;
 import com.sesac.backend.statistics.dto.MonthlyStatsData;
 import com.sesac.backend.statistics.repository.InstructorStatsRepository;
@@ -40,7 +41,6 @@ public class InstructorStatsService {
 
     private final ReviewRepository reviewRepository;
 
-
     public Map<String, Object> getInstructorStats(UUID userId) {
 
         Map<String, Object> instructorStats = new HashMap<>();
@@ -56,12 +56,21 @@ public class InstructorStatsService {
         // 현재 월의 통계 데이터 조회
         LocalDateTime now = LocalDateTime.now();
         MonthlyStatsData monthlyData = stats.getMonthlyStats(now.getYear(), now.getMonth().getValue());
+        if (monthlyData == null) {
+            monthlyData = MonthlyStatsData.builder()
+                    .revenue(BigDecimal.ZERO)
+                    .newStudents(0)
+                    .averageRating(0.0)
+                    .build();
+        }
 
         instructorStats.put("totalStudents", stats.getTotalStudents());
         instructorStats.put("activeCourses", stats.getActiveCourses());
         instructorStats.put("totalRevenue", stats.getTotalRevenue());
         instructorStats.put("averageRating", stats.getAverageRating());
         instructorStats.put("monthlyStats", monthlyData);
+
+        log.info("Instructor stats final: " + instructorStats);
 
         return instructorStats;
     }
@@ -82,32 +91,54 @@ public class InstructorStatsService {
     }
 
     private void updateInstructorMonthlyStats(User instructor, int year, int month) {
-        List<Course> courses = courseRepository.findByInstructor(instructor);
-        List<Long> courseIds = courseRepository.findCourseIdsByInstructor(instructor);
 
-        // 이번 달의 새로운 수강생 수 계산
-        int newStudents = calculateNewStudentsForMonth(courseIds, year, month);
+        try {
+            log.info("updateInstructorMonthlyStats entrance");
+            log.info("year: " + year);
+            log.info("month: " + month);
 
-        // 이번 달의 수익 계산
-        BigDecimal monthlyRevenue = calculateMonthlyRevenue(courseIds, year, month);
+            CourseIdsDto ids = getCourseAndOrderedCourseIds(instructor);
+
+            log.info("updateInstructorMonthlyStats ids: " + ids.getSortedCourseIds());
+
+            // 이번 달의 새로운 수강생 수 계산
+            int newStudents = calculateNewStudentsForMonth(ids.getSortedCourseIds(), year, month);
+
+            log.info("updateInstructorMonthlyStats newStudents: " + newStudents);
+
+            // 이번 달의 수익 계산
+            BigDecimal monthlyRevenue = calculateMonthlyRevenue(ids.getSortedCourseIds(), year, month);
+
+            log.info("updateInstructorMonthlyStats revenue: " + monthlyRevenue);
 
 //        // 이번 달의 수료율 계산
 //        double completionRate = calculateCompletionRate(courseIds, year, month);
 
-        // 이번 달의 평균 평점 계산
-        double averageRating = calculateAverageRating(courseIds, year, month);
+            // 이번 달의 평균 평점 계산
+            Double averageRating = calculateAverageRating(ids.getCourseIds(), year, month);
 
-        MonthlyStatsData monthlyData = MonthlyStatsData.builder()
-                .revenue(monthlyRevenue)
-                .newStudents(newStudents)
+            log.info("updateInstructorMonthlyStats averageRating: " + averageRating);
+
+            MonthlyStatsData monthlyData = MonthlyStatsData.builder()
+                    .revenue(monthlyRevenue)
+                    .newStudents(newStudents)
 //                .completionRate(completionRate)
-                .averageRating(averageRating)
-                .build();
+                    .averageRating(averageRating)
+                    .build();
 
-        // 통계 정보 업데이트
-        InstructorStats stats = getOrCreateInstructorStats(instructor);
-        stats.updateMonthlyStats(year, month, monthlyData);
-        instructorStatsRepository.save(stats);
+            // 통계 정보 업데이트
+            InstructorStats stats = getOrCreateInstructorStats(instructor);
+            log.info("Retrieved stats object: {}", stats);
+
+            stats.updateMonthlyStats(year, month, monthlyData);
+            log.info("After updateMonthlyStats call");
+
+            instructorStatsRepository.save(stats);
+            log.info("After save operation");
+        } catch (Exception e) {
+            log.error("Error in updateInstructorMonthlyStats", e);
+            throw new RuntimeException("통계 업데이트 중 오류 발생", e);
+        }
     }
 
     private InstructorStats getOrCreateInstructorStats(User user) {
@@ -117,41 +148,28 @@ public class InstructorStatsService {
 
     private InstructorStats createInitialStats(User user) {
 
-        List<Course> courses = courseRepository.findByInstructor(user);
-        List<Long> courseIds = courseRepository.findCourseIdsByInstructor(user);
+        CourseIdsDto ids = getCourseAndOrderedCourseIds(user);
 
-        List<List<OrderedCourses>> allOrderedCourses = new ArrayList<>();
-        List<Long> orderedCourseIds = new ArrayList<>();
+        int totalEnrolled = enrollmentRepository.countByOrderedCoursesIdIn(ids.getSortedCourseIds());
+        BigDecimal totalRevenue = orderedCoursesRepository.sumPriceByIds(ids.getSortedCourseIds());
+        Double averageRating = reviewRepository.averageRatingByCourseIds(ids.getCourseIds());
 
-        for (Course course : courses) {
-            allOrderedCourses.add(orderedCoursesRepository.findAllByCourse(course));
-        }
-        log.info("createInitialStats All OrderedCourses: " + allOrderedCourses);
-
-        for (List<OrderedCourses> orderedCourses : allOrderedCourses) {
-            log.info("createInitialStats for loop OrderedCourses: " + orderedCourses);
-            if (enrollmentRepository.existsByOrderedCourses(orderedCourses.get(0))) {
-                orderedCourseIds.add(orderedCourses.get(0).getId());
-            }
-        }
-        log.info("createInitialStats OrderedCourseIds: " + orderedCourseIds);
-
-        Integer totalEnrolled = enrollmentRepository.countByOrderedCoursesIdIn(orderedCourseIds);
-        BigDecimal totalRevenue = orderedCoursesRepository.sumPriceByIds(orderedCourseIds);
-        Double averageRating = reviewRepository.averageRatingByCourseIds(courseIds);
+        log.info("createInitialStats totalEnrolled: " + totalEnrolled);
+        log.info("createInitialStats totalRevenue: " + totalRevenue);
+        log.info("createInitialStats averageRating: " + averageRating);
 
         return InstructorStats.builder()
                 .user(user)
                 .totalStudents(totalEnrolled)
-                .activeCourses(courses.size())
+                .activeCourses(ids.getCourses().size())
                 .totalRevenue(totalRevenue)
                 .averageRating(averageRating)
                 .build();
     }
 
-    private int calculateNewStudentsForMonth(List<Long> courseIds, int year, int month) {
+    private Integer calculateNewStudentsForMonth(List<Long> courseIds, int year, int month) {
         // 해당 월의 새로운 수강생 수 계산 로직
-        return enrollmentRepository.countNewEnrollmentsForMonth(courseIds, year, month);
+        return orderedCoursesRepository.countNewEnrollmentsForMonth(courseIds, year, month);
     }
 
     private BigDecimal calculateMonthlyRevenue(List<Long> courseIds, int year, int month) {
@@ -164,9 +182,37 @@ public class InstructorStatsService {
 //        return enrollmentRepository.calculateCompletionRate(courseIds, year, month);
 //    }
 
-    private double calculateAverageRating(List<Long> courseIds, int year, int month) {
+    private Double calculateAverageRating(List<Long> courseIds, int year, int month) {
         // 해당 월의 평균 평점 계산 로직
-        return courseRepository.calculateMonthlyAverageRating(courseIds, year, month);
+        return reviewRepository.averageRatingForMonth(courseIds, year, month);
+    }
+
+    public CourseIdsDto getCourseAndOrderedCourseIds(User user) {
+        List<Course> courses = courseRepository.findByInstructor(user);
+        List<Long> courseIds = courseRepository.findCourseIdsByInstructor(user);
+
+        List<List<OrderedCourses>> allOrderedCourses = new ArrayList<>();
+        List<Long> sortedCourseIds = new ArrayList<>();
+
+        for (Course course : courses) {
+            if (orderedCoursesRepository.existsByCourse(course)) {
+                allOrderedCourses.add(orderedCoursesRepository.findAllByCourse(course));
+            }
+        }
+
+        for (List<OrderedCourses> orderedCourses : allOrderedCourses) {
+            for (OrderedCourses orderedCourse : orderedCourses) {
+                if (enrollmentRepository.existsByOrderedCourses(orderedCourse)) {
+                    sortedCourseIds.add(orderedCourse.getCourse().getId());
+                }
+            }
+        }
+
+        return CourseIdsDto.builder()
+                .courses(courses)
+                .courseIds(courseIds)
+                .sortedCourseIds(sortedCourseIds)
+                .build();
     }
 
 

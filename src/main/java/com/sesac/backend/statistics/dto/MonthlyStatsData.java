@@ -19,5 +19,5 @@ public class MonthlyStatsData {
 
 //    private double completionRate;
 
-    private double averageRating;
+    private Double averageRating;
 }

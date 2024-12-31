@@ -65,4 +65,6 @@ public class Course extends BaseEntity {
 
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Review> reviews = new ArrayList<>(); // Course에 대한 리뷰
+
+
 }

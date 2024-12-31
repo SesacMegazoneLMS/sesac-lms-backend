@@ -57,6 +57,9 @@ dependencies {
 
     //aws 영상 삭제를 위한 dependency
     implementation 'software.amazon.awssdk:s3:2.20.26'
+
+    // PostgreSQL JSONB 타입 지원
+    implementation 'com.vladmihalcea:hibernate-types-60:2.21.1'
 }
 
 tasks.named('test') {

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -21,11 +22,7 @@ public class InstructorStatsController {
     @GetMapping("/instructor/stats")
     public ResponseEntity<?> getStats(Authentication authentication) {
 
-        log.info("Get Instructor Stats");
-
         UUID userId = UUID.fromString(authentication.getName());
-
-        log.info("User ID: {}", userId);
 
         try {
             return ResponseEntity.ok(Map.of(
@@ -35,5 +32,11 @@ public class InstructorStatsController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PostMapping("/instructor/stats/manual-update")
+    public ResponseEntity<?> manualUpdate() {
+        instructorStatsService.updateAllInstructorsMonthlyStats();
+        return ResponseEntity.ok("Statistics updated successfully");
     }
 }

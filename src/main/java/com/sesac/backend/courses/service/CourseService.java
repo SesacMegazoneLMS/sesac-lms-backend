@@ -11,6 +11,8 @@ import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.reviews.repository.ReviewRepository;
+import com.sesac.backend.statistics.dto.CourseIdsDto;
+import com.sesac.backend.statistics.service.InstructorStatsService;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,8 @@ public class CourseService {
 
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+
+    private final InstructorStatsService instructorStatsService;
 
     public Long createCourse(UUID userId, CourseDto request) {
 
@@ -220,10 +225,12 @@ public class CourseService {
         UUID userId = UUID.fromString(authentication.getName());
 
         User user = userRepository.findByUuid(userId).orElseThrow(
-            () -> new RuntimeException("유저를 찾을 수 없습니다")
+                () -> new RuntimeException("유저를 찾을 수 없습니다")
         );
 
-        Pageable pageable = PageRequest.of(page-1, size);
+        CourseIdsDto ids = instructorStatsService.getCourseAndOrderedCourseIds(user);
+
+        Pageable pageable = PageRequest.of(page - 1, size);
 
         Page<Course> instructorCourses = courseRepository.findByInstructor(user, pageable);
 
@@ -234,15 +241,21 @@ public class CourseService {
 
             // 평균 평점 계산
             double averageRating = reviews.stream()
-                .mapToDouble(Review::getRating)
-                .average()
-                .orElse(0.0);
+                    .mapToDouble(Review::getRating)
+                    .average()
+                    .orElse(0.0);
+
+            int enrollmentCount = Collections.frequency(ids.getSortedCourseIds(), course.getId());
+
+            LocalDateTime createdAt = course.getCreatedAt();
 
             return CourseInstructorDto.builder()
-                .id(course.getId())
-                .title(course.getTitle())
-                .averageRating(averageRating)
-                .build();
+                    .id(course.getId())
+                    .title(course.getTitle())
+                    .enrollmentCount(enrollmentCount)
+                    .averageRating(averageRating)
+                    .createdAt(createdAt.toString())
+                    .build();
         });
     }
 }
