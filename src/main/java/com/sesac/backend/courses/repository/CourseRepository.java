@@ -23,8 +23,19 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     Page<Course> findByInstructor(User user, Pageable pageable);
 
-    List<Course> findByInstructorId(Long instructorId);
+    List<Course> findByInstructor(User user);
 
-    List<Long> findCourseIdsByInstructorId(Long instructorId);
+    @Query("SELECT c.id FROM Course c WHERE c.instructor = :instructor")
+    List<Long> findCourseIdsByInstructor(@Param("instructor") User user);
+
+    @Query("SELECT AVG(r.rating) FROM Course c " +
+            "JOIN c.reviews r " +
+            "WHERE c.id IN :courseIds " +
+            "AND YEAR(r.createdAt) = :year " +
+            "AND MONTH(r.createdAt) = :month")
+    Double calculateMonthlyAverageRating(
+            @Param("courseIds") List<Long> courseIds,
+            @Param("year") int year,
+            @Param("month") int month);
 
 }

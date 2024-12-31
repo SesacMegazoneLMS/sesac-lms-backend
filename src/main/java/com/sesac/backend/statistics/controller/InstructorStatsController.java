@@ -2,6 +2,7 @@ package com.sesac.backend.statistics.controller;
 
 import com.sesac.backend.statistics.service.InstructorStatsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class InstructorStatsController {
 
     private final InstructorStatsService instructorStatsService;
@@ -19,7 +21,11 @@ public class InstructorStatsController {
     @GetMapping("/instructor/stats")
     public ResponseEntity<?> getStats(Authentication authentication) {
 
+        log.info("Get Instructor Stats");
+
         UUID userId = UUID.fromString(authentication.getName());
+
+        log.info("User ID: {}", userId);
 
         try {
             return ResponseEntity.ok(Map.of(

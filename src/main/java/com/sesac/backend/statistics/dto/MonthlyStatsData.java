@@ -17,7 +17,7 @@ public class MonthlyStatsData {
 
     private int newStudents;
 
-    private double completionRate;
+//    private double completionRate;
 
     private double averageRating;
 }
