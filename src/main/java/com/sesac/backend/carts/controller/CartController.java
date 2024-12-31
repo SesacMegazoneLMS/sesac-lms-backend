@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 
 @Slf4j
@@ -24,15 +25,21 @@ public class CartController {
     //장바구니 추가
     @PostMapping("/items")
     public ResponseEntity<String> addItem(@RequestBody CartRequest cartRequest, @CurrentUser UUID USER_ID) {
-        try{
+        try {
             cartService.addCourseToCart(USER_ID, cartRequest);
             return ResponseEntity.ok("장바구니에 강의가 성공적으로 추가되었습니다.");
-        }catch (SecurityException e){
+        } catch (SecurityException e) {
+            // 인증/인가 오류는 403 Forbidden
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch(IllegalArgumentException e) {
+            // 잘못된 요청 데이터는 400 Bad Request
             return ResponseEntity.badRequest().body(e.getMessage());
-        }catch(IllegalArgumentException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }catch(RuntimeException e){
-            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch(NoSuchElementException e) {
+            // 요청한 리소스가 없는 경우는 404 Not Found
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch(RuntimeException e) {
+            // 서버 내부 오류는 500 Internal Server Error
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 

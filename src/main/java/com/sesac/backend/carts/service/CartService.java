@@ -29,45 +29,40 @@ public class CartService {
 
     //장바구니 추가 메서드-------------------------------------
     public void addCourseToCart(UUID userId, CartRequest cartRequest) {
+        // UUID를 사용하여 user 정보 조회
+        User user = userRepository.findByUuid(userId).orElseThrow();
+
+        // courseId를 사용하여 코스 정보를 조회
+        Course course = courseRepository.findById(cartRequest.getCourseId()).orElseThrow(
+            () -> new NoSuchElementException("해당 강의에 대한 정보가 없습니다."));
+
+        // 기존 Cart 조회 or 생성
+        Cart cart = cartRepository.findByUser(user)
+            .orElse(Cart.builder().user(user).cartInfo(new ObjectMapper().createObjectNode()).build());
+
+        // 사용자 권한 체크
+        if (!cart.getUser().getId().equals(user.getId())) {
+            throw new SecurityException("접근권한이 없습니다.");
+        }
+
+        ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
+
+        // 중복 강의 체크
+        if (isCourseInCart(cartInfo, course.getId())) {
+            throw new IllegalArgumentException("이미 장바구니에 해당 강의가 존재합니다.");
+        }
+
         try {
-            // UUID를 사용하여 user 정보 조회
-            User user = userRepository.findByUuid(userId).orElseThrow();
-
-            // courseId를 사용하여 코스 정보를 조회
-            Course course = courseRepository.findById(cartRequest.getCourseId()).orElseThrow(
-                    () -> new NoSuchElementException("해당 강의에 대한 정보가 없습니다."));
-
-            // 기존 Cart 조회 or 생성
-            Cart cart = cartRepository.findByUser(user)
-                    .orElse(Cart.builder().user(user).cartInfo(new ObjectMapper().createObjectNode()).build());
-
-            // 사용자 권한 체크
-            if (!cart.getUser().getId().equals(user.getId())) {
-                throw new SecurityException("접근권한이 없습니다.");
-            }
-
-            // cartInfo 업데이트
-            // ObjectMapper : Java 객체와 JSON 간의 변환을 쉽게 해주는 기능
-            ObjectNode cartInfo = (ObjectNode) cart.getCartInfo();
-
-            // 중복 강의 체크
-            if (isCourseInCart(cartInfo, course.getId())) {
-                throw new IllegalArgumentException("이미 장바구니에 해당 강의가 존재합니다.");
-            }
-
             int nextIndex = findNextIndex(cartInfo);
-
-            // 새로운 course 정보를 담을 객체 생성
             ObjectNode newItem = createCourseNode(course);
-
-            // 순차적 인덱스로 course 추가
             cartInfo.put(String.valueOf(nextIndex), newItem);
 
             cart.setUser(user);
             cart.setCartInfo(cartInfo);
 
-            cartRepository.save(cart); // Cart 저장
+            cartRepository.save(cart);
         } catch (Exception e) {
+            // 여기서는 정말 예상치 못한 기술적인 오류만 RuntimeException으로 처리
             throw new RuntimeException("장바구니 담기 실패", e);
         }
     }
