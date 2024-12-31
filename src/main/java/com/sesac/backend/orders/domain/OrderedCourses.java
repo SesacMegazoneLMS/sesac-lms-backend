@@ -1,5 +1,6 @@
 package com.sesac.backend.orders.domain;
 
+import com.sesac.backend.audit.BaseEntity;
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.orders.constants.OrderedCoursesStatus;
 import jakarta.persistence.*;
@@ -12,7 +13,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class OrderedCourses {
+public class OrderedCourses extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -35,7 +35,25 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             @Param("status") OrderedCoursesStatus status
     );
 
-    boolean existsByOrderedCoursesId(Long orderedCoursesId);
+    @Query("SELECT COUNT(e) FROM Enrollment e WHERE e.orderedCourses.course.id IN :courseIds")
+    Integer countByOrderedCoursesIdIn(@Param("courseIds") List<Long> courseIds);
 
-    Integer countByOrderedCoursesIdIn(Iterable<Long> orderedCoursesIds);
+    @Query("SELECT COUNT(e) FROM Enrollment e " +
+            "WHERE e.orderedCourses.course.id IN :courseIds " +
+            "AND YEAR(e.createdAt) = :year " +
+            "AND MONTH(e.createdAt) = :month")
+    int countNewEnrollmentsForMonth(
+            @Param("courseIds") List<Long> courseIds,
+            @Param("year") int year,
+            @Param("month") int month);
+
+//    @Query("SELECT (COUNT(CASE WHEN e.completionStatus = 'COMPLETED' THEN 1 END) * 100.0) / COUNT(e) " +
+//            "FROM Enrollment e " +
+//            "WHERE e.orderedCourses.course.id IN :courseIds " +
+//            "AND YEAR(e.createdAt) = :year " +
+//            "AND MONTH(e.createdAt) = :month")
+//    double calculateCompletionRate(
+//            @Param("courseIds") List<Long> courseIds,
+//            @Param("year") int year,
+//            @Param("month") int month);
 }
