@@ -35,4 +35,7 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
             @Param("status") OrderedCoursesStatus status
     );
 
+    boolean existsByOrderedCoursesId(Long orderedCoursesId);
+
+    Integer countByOrderedCoursesIdIn(Iterable<Long> orderedCoursesIds);
 }
