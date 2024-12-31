@@ -18,6 +18,7 @@ public class LectureRequest {
     private String duration;
     private String videoKey;
     private String status;
+    private boolean isCompleted;
 
     public static LectureRequest from(Lecture lecture) {
         return LectureRequest.builder()
@@ -28,6 +29,7 @@ public class LectureRequest {
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
                 .status(lecture.getStatus())
+                // .isCompleted(lecture.getLectureProgress() == null ? false : lecture.getLectureProgress().getIsCompleted())
                 .build();
     }
 

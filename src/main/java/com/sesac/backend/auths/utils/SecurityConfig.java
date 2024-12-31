@@ -47,6 +47,8 @@ public class SecurityConfig {
                     .requestMatchers("GET", "/reviews/{reviewId}/likes").permitAll()
                     .requestMatchers(STUDENTS_API).hasRole("STUDENT")
                     .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
+                    .requestMatchers("/api/lectures/*/progress").authenticated()
+                    .requestMatchers("/lectures/{lectureId}/progress").authenticated()  // 패턴 수정
                     .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
@@ -59,6 +61,7 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of("*"));  // 모든 출처 허용
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
+        configuration.setExposedHeaders(List.of("*"));
         configuration.setAllowCredentials(false);  // '*' 사용시 allowCredentials는 false여야 함
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -8,6 +8,6 @@ import lombok.AllArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProgressRequest {
-    private Integer progressRate;
+    private Double progressRate;
     private Integer watchedSeconds;
 } 
