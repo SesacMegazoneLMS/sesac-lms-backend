@@ -21,12 +21,6 @@ public class Lecture {
     @JoinColumn(name = "course_id")
     private Course course; // 강의가 속한 코스
 
-    // @OneToOne(fetch = FetchType.LAZY)
-    // @JoinColumn(name = "lecture_progress_id")
-    // private LectureProgress lectureProgress;
-
-
-
     private String title; // 강의 제목
     private Integer orderIndex;  // 강의 순서
 

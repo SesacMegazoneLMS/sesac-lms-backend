@@ -8,7 +8,9 @@ import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.lectures.domain.Lecture;
+import com.sesac.backend.lectures.domain.LectureProgress;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
+import com.sesac.backend.lectures.repository.LectureProgressRepository;
 import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.reviews.repository.ReviewRepository;
 import com.sesac.backend.users.domain.User;
@@ -32,7 +34,7 @@ import java.util.stream.Collectors;
 public class CourseService {
 
     private final CourseRepository courseRepository;
-
+    private final LectureProgressRepository lectureProgressRepository;
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
 
@@ -111,8 +113,25 @@ public class CourseService {
                 .requirements(course.getRequirements())
                 .skills(course.getSkills())
                 .lectures(course.getLectures().stream()
-                        .map(LectureRequest::from)
+                        .map(this::convertToLectureRequest)
                         .toList())
+                .build();
+    }
+
+    private LectureRequest convertToLectureRequest(Lecture entity) {
+        LectureProgress progress = lectureProgressRepository.findByLectureId(entity.getId()).orElse(null);
+
+        boolean isCompleted = progress != null && progress.getIsCompleted();
+
+        return LectureRequest.builder()
+                .id(entity.getId())
+                .courseId(entity.getCourse().getId())
+                .title(entity.getTitle())
+                .duration(entity.getDuration())
+                .orderIndex(entity.getOrderIndex())
+                .videoKey(entity.getVideoKey())
+                .status(entity.getStatus())
+                .isCompleted(isCompleted)
                 .build();
     }
 

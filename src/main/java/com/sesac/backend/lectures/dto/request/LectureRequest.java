@@ -23,13 +23,12 @@ public class LectureRequest {
     public static LectureRequest from(Lecture lecture) {
         return LectureRequest.builder()
                 .id(lecture.getId())
-                .courseId(lecture.getId())
+                .courseId(lecture.getCourse().getId())
                 .title(lecture.getTitle())
                 .duration(lecture.getDuration())
                 .orderIndex(lecture.getOrderIndex())
                 .videoKey(lecture.getVideoKey())
                 .status(lecture.getStatus())
-                // .isCompleted(lecture.getLectureProgress() == null ? false : lecture.getLectureProgress().getIsCompleted())
                 .build();
     }
 
