@@ -329,7 +329,7 @@ public class CourseService {
                 })
                 .sorted((e1, e2) -> LocalDateTime.parse(e2.getEnrolledAt())
                         .compareTo(LocalDateTime.parse(e1.getEnrolledAt())))
-                .limit(3)
+                .limit(5)
                 .collect(Collectors.toList());
     }
 
