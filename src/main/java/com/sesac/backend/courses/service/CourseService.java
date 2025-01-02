@@ -17,6 +17,7 @@ import com.sesac.backend.statistics.dto.CourseIdsDto;
 import com.sesac.backend.statistics.service.InstructorStatsService;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
+import java.math.BigDecimal;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -276,5 +277,23 @@ public class CourseService {
                     .createdAt(createdAt.toString())
                     .build();
         });
+    }
+
+    public List<CourseDto> getFreeCourses() {
+        return courseRepository.findByPrice(BigDecimal.ZERO).stream().map(entity -> CourseDto.builder()
+            .id(entity.getId())
+            .title(entity.getTitle())
+            .description(entity.getDescription())
+            .level(entity.getLevel().getLevel())
+            .category(entity.getCategory().toString())
+            .price(entity.getPrice())
+            .thumbnail(entity.getThumbnail())
+            .objectives(entity.getObjectives())
+            .requirements(entity.getRequirements())
+            .skills(entity.getSkills())
+            .lectures(entity.getLectures().stream()
+                .map(LectureRequest::from)
+                .toList())
+            .build()).toList();
     }
 }
