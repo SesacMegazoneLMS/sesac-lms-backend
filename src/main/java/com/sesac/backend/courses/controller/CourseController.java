@@ -233,4 +233,12 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/free")
+    public ResponseEntity<List<CourseDto>> getFreeCourses() {
+        try {
+            return ResponseEntity.ok(courseService.getFreeCourses());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
