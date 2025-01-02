@@ -2,6 +2,7 @@ package com.sesac.backend.courses.repository;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.users.domain.User;
+import java.math.BigDecimal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,5 @@ public interface CourseRepository extends JpaRepository<Course, Long>, JpaSpecif
 
     Optional<Course> findTitleById(Long courseId);
 
+    List<Course> findByPrice(BigDecimal price);
 }
