@@ -22,4 +22,9 @@ public class ReviewResponse {
 
     private Boolean helpful;
 
+    // 강의 명 및 리뷰 작성일 추가
+    private String courseName;
+
+    private String createdAt;
+
 }

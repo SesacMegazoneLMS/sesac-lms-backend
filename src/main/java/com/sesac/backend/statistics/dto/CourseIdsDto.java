@@ -15,4 +15,5 @@ public class CourseIdsDto {
     private List<Course> courses;
     private List<Long> courseIds;
     private List<Long> sortedCourseIds;
+    private List<Long> distinctCourseIds;
 }
