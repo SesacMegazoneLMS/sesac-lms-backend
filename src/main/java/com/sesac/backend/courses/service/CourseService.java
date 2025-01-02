@@ -7,15 +7,19 @@ import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.courses.repository.CourseRepository;
+import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
+import com.sesac.backend.enrollments.repository.EnrollmentRepository;
 import com.sesac.backend.lectures.domain.Lecture;
 import com.sesac.backend.lectures.dto.request.LectureRequest;
 import com.sesac.backend.reviews.domain.Review;
+import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.repository.ReviewRepository;
 import com.sesac.backend.statistics.dto.CourseIdsDto;
 import com.sesac.backend.statistics.service.InstructorStatsService;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,12 +36,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class CourseService {
 
     private final CourseRepository courseRepository;
 
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
+    private final EnrollmentRepository enrollmentRepository;
 
     private final InstructorStatsService instructorStatsService;
 
@@ -257,5 +263,72 @@ public class CourseService {
                     .createdAt(createdAt.toString())
                     .build();
         });
+    }
+
+    public List<RecentEnrollmentDto> getRecentEnrollments(Authentication authentication) {
+
+        UUID userId = UUID.fromString(authentication.getName());
+
+        User user = userRepository.findByUuid(userId).orElseThrow(
+                () -> new RuntimeException("유저를 찾을 수 없습니다")
+        );
+
+        CourseIdsDto ids = instructorStatsService.getCourseAndOrderedCourseIds(user);
+
+        return ids.getDistinctCourseIds().stream()
+                .flatMap(courseId -> {
+
+                    Course course = courseRepository.findById(courseId)
+                            .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
+
+                    return enrollmentRepository.findEnrolledUsersWithDateByCourseId(courseId).stream()
+                            .map(enrollment -> RecentEnrollmentDto.builder()
+                                    .userId(enrollment.getUserId())
+                                    .username(enrollment.getUsername())
+                                    .courseName(course.getTitle())
+                                    .enrolledAt(enrollment.getEnrolledAt())
+                                    .build());
+                })
+                .sorted((e1, e2) -> LocalDateTime.parse(e2.getEnrolledAt())
+                        .compareTo(LocalDateTime.parse(e1.getEnrolledAt())))
+                .limit(3)
+                .collect(Collectors.toList());
+    }
+
+    public List<ReviewResponse> getRecentReviews(Authentication authentication) {
+        try {
+            UUID userId = UUID.fromString(authentication.getName());
+            User user = userRepository.findByUuid(userId).orElseThrow(
+                    () -> new RuntimeException("유저를 찾을 수 없습니다")
+            );
+
+            log.info("User found: {}", user);
+
+            List<Course> courses = courseRepository.findByInstructor(user);
+            log.info("Found courses: {}", courses);
+
+            return courses.stream()
+                    .flatMap(course -> {
+                        List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
+                        log.info("Reviews for course {}: {}", course.getId(), reviews);
+
+                        return reviews.stream()
+                                .map(review -> ReviewResponse.builder()
+                                        .id(review.getId())
+                                        .writer(review.getWriter().getNickname())
+                                        .content(review.getContent())
+                                        .rating(review.getRating())
+                                        .courseName(course.getTitle())
+                                        .createdAt(review.getCreatedAt().toString())
+                                        .build());
+                    })
+                    .sorted((r1, r2) -> LocalDateTime.parse(r2.getCreatedAt())
+                            .compareTo(LocalDateTime.parse(r1.getCreatedAt())))
+                    .limit(3)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            log.error("Error in getRecentReviews: ", e);
+            throw e;
+        }
     }
 }

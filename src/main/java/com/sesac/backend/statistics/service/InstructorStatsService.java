@@ -208,10 +208,13 @@ public class InstructorStatsService {
             }
         }
 
+        List<Long> distinctCourseIds = new ArrayList<>(new LinkedHashSet<>(sortedCourseIds));
+
         return CourseIdsDto.builder()
                 .courses(courses)
                 .courseIds(courseIds)
                 .sortedCourseIds(sortedCourseIds)
+                .distinctCourseIds(distinctCourseIds)
                 .build();
     }
 

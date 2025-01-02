@@ -2,9 +2,12 @@ package com.sesac.backend.enrollments.repository;
 
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.enrollments.domain.Enrollment;
+import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
 import com.sesac.backend.orders.constants.OrderedCoursesStatus;
 import com.sesac.backend.orders.domain.OrderedCourses;
 import java.util.List;
+
+import com.sesac.backend.users.domain.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -56,4 +59,17 @@ public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
 //            @Param("courseIds") List<Long> courseIds,
 //            @Param("year") int year,
 //            @Param("month") int month);
+
+    @Query("SELECT new com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto(" +
+            "e.user.id, " +
+            "e.user.nickname, " +
+            "oc.course.title, " +
+            "e.createdAt) " +
+            "FROM Enrollment e " +
+            "JOIN e.orderedCourses oc " +
+            "WHERE oc.course.id = :courseId " +
+            "AND e.isActive = true " +
+            "AND oc.status = 'ACTIVE' " +
+            "ORDER BY e.createdAt DESC")
+    List<RecentEnrollmentDto> findEnrolledUsersWithDateByCourseId(@Param("courseId") Long courseId);
 }
