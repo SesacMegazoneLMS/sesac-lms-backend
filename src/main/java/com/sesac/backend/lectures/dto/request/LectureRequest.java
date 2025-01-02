@@ -18,11 +18,12 @@ public class LectureRequest {
     private String duration;
     private String videoKey;
     private String status;
+    private boolean isCompleted;
 
     public static LectureRequest from(Lecture lecture) {
         return LectureRequest.builder()
                 .id(lecture.getId())
-                .courseId(lecture.getId())
+                .courseId(lecture.getCourse().getId())
                 .title(lecture.getTitle())
                 .duration(lecture.getDuration())
                 .orderIndex(lecture.getOrderIndex())

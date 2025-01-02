@@ -28,28 +28,28 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors(Customizer.withDefaults())
-            .csrf(AbstractHttpConfigurer::disable)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .securityContext(context -> context
-                .requireExplicitSave(false)  // 비동기 처리시 SecurityContext 자동 전파
-            )
-            .authorizeHttpRequests(auth ->
-                auth
-                    .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
-                    .requestMatchers("GET", "/courses").permitAll()
-                    .requestMatchers("GET", "/courses/{courseId}").permitAll()
-                    .requestMatchers("/payments/webhook").permitAll()
-                    .requestMatchers("GET", "/courses/{courseId}/reviews").permitAll()
-                    .requestMatchers("GET", "/courses/{courseId}/scores").permitAll()
-                    .requestMatchers("GET", "/reviews/{reviewId}/likes").permitAll()
-                    .requestMatchers(STUDENTS_API).hasRole("STUDENT")
-                    .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
-                    .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .cors(Customizer.withDefaults())
+                .csrf(AbstractHttpConfigurer::disable)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .securityContext(context -> context
+                        .requireExplicitSave(false)  // 비동기 처리시 SecurityContext 자동 전파
+                )
+                .authorizeHttpRequests(auth ->
+                        auth
+                                .requestMatchers(AUTHS_API, HEALTH_CHECK_URL).permitAll()
+                                .requestMatchers("GET", "/courses").permitAll()
+                                .requestMatchers("GET", "/courses/{courseId}").permitAll()
+                                .requestMatchers("/payments/webhook").permitAll()
+                                .requestMatchers("GET", "/courses/{courseId}/reviews").permitAll()
+                                .requestMatchers("GET", "/courses/{courseId}/scores").permitAll()
+                                .requestMatchers("GET", "/reviews/{reviewId}/likes").permitAll()
+                                .requestMatchers(STUDENTS_API).hasRole("STUDENT")
+                                .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
+                                .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
