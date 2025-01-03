@@ -272,7 +272,7 @@ public class CourseController {
 
             return ResponseEntity.ok(Map.of(
                "totalCount", reviewStatus.getReviewCount(),
-               "avarageRating", reviewStatus.getAverageRating()
+               "averageRating", reviewStatus.getAverageRating()
             ));
         }catch (EntityNotFoundException e){
             return ResponseEntity.noContent().build();

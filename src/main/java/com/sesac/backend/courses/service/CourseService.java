@@ -214,6 +214,7 @@ public class CourseService {
 
         return coursePage.map(course -> CourseDto.builder()
                 .id(course.getId())
+                .instructorId(course.getInstructor().getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .price(course.getPrice())
