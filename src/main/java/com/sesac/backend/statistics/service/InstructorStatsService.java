@@ -84,6 +84,9 @@ public class InstructorStatsService {
                 lastMonth.getNewStudents()
         );
 
+        log.info("Current month students: {}", currentMonth.getNewStudents());
+        log.info("Last month students: {}", lastMonth.getNewStudents());
+
         StatsTrendDto revenueTrend = calculateTrend(
                 currentMonth.getRevenue(),
                 lastMonth.getRevenue()
@@ -94,6 +97,23 @@ public class InstructorStatsService {
                 lastMonth.getAverageRating()
         );
 
+        // 현재월과 이전월 데이터를 상세 정보로 추가
+        Map<String, Object> studentsDetail = new HashMap<>();
+        studentsDetail.put("total", stats.getTotalStudents());
+        studentsDetail.put("currentMonth", currentMonth.getNewStudents());
+        studentsDetail.put("previousMonth", lastMonth.getNewStudents());
+        studentsDetail.put("trend", studentsTrend);
+        studentsDetail.put("currentMonthLabel", String.format("%d년 %d월", now.getYear(), now.getMonthValue()));
+        studentsDetail.put("previousMonthLabel", String.format("%d년 %d월", now.minusMonths(1).getYear(), now.minusMonths(1).getMonthValue()));
+
+        Map<String, Object> revenueDetail = new HashMap<>();
+        revenueDetail.put("total", stats.getTotalRevenue());
+        revenueDetail.put("currentMonth", currentMonth.getRevenue());
+        revenueDetail.put("previousMonth", lastMonth.getRevenue());
+        revenueDetail.put("trend", revenueTrend);
+        revenueDetail.put("currentMonthLabel", String.format("%d년 %d월", now.getYear(), now.getMonthValue()));
+        revenueDetail.put("previousMonthLabel", String.format("%d년 %d월", now.minusMonths(1).getYear(), now.minusMonths(1).getMonthValue()));
+
         instructorStats.put("totalStudents", stats.getTotalStudents());
         instructorStats.put("activeCourses", stats.getActiveCourses());
         instructorStats.put("totalRevenue", stats.getTotalRevenue());
@@ -103,10 +123,39 @@ public class InstructorStatsService {
         instructorStats.put("totalStudentsTrend", studentsTrend);
         instructorStats.put("monthlyRevenueTrend", revenueTrend);
         instructorStats.put("averageRatingTrend", ratingTrend);
+        instructorStats.put("studentsDetail", studentsDetail);
+        instructorStats.put("revenueDetail", revenueDetail);
+
 
         log.info("Instructor stats final: " + instructorStats);
 
         return instructorStats;
+    }
+
+    @Transactional
+    public void updateInstructorStats() {
+        List<User> instructors = userRepository.findAllByUserType(UserType.INSTRUCTOR);
+        for (User instructor : instructors) {
+            updateInstructorStats(instructor);
+        }
+    }
+
+    @Transactional
+    public void updateInstructorStats(User instructor) {
+
+        InstructorStats stats = getOrCreateInstructorStats(instructor);
+        CourseIdsDto ids = getCourseAndOrderedCourseIds(instructor);
+
+        int totalEnrolled = enrollmentRepository.countByOrderedCoursesIdIn(ids.getSortedCourseIds());
+        BigDecimal totalRevenue = orderedCoursesRepository.sumPriceByIds(ids.getSortedCourseIds());
+        Double averageRating = reviewRepository.averageRatingByCourseIds(ids.getCourseIds());
+
+        stats.setTotalStudents(totalEnrolled);
+        stats.setActiveCourses(ids.getCourses().size());
+        stats.setTotalRevenue(totalRevenue);
+        stats.setAverageRating(averageRating);
+
+        instructorStatsRepository.save(stats);
     }
 
     @Transactional
@@ -176,11 +225,14 @@ public class InstructorStatsService {
     }
 
     private InstructorStats getOrCreateInstructorStats(User user) {
+        log.info("getOrCreateInstructorStats entrance");
         return instructorStatsRepository.findByUserId(user.getId())
                 .orElseGet(() -> createInitialStats(user));
     }
 
     private InstructorStats createInitialStats(User user) {
+
+        log.info("createInitialStats entrance*****************");
 
         CourseIdsDto ids = getCourseAndOrderedCourseIds(user);
 
@@ -243,6 +295,8 @@ public class InstructorStatsService {
         }
 
         List<Long> distinctCourseIds = new ArrayList<>(new LinkedHashSet<>(sortedCourseIds));
+
+        log.info("sortedCourseIds*******************: " + sortedCourseIds);
 
         return CourseIdsDto.builder()
                 .courses(courses)
@@ -307,6 +361,7 @@ public class InstructorStatsService {
 
     // 일반 숫자용
     private StatsTrendDto calculateTrend(int currentValue, int previousValue) {
+        log.info("Calculating trend - current value: {}, previous value: {}", currentValue, previousValue);
         boolean isNew = previousValue == 0 && currentValue > 0;
         double trend;
         String trendType;
@@ -316,11 +371,15 @@ public class InstructorStatsService {
             trendType = "NEW";
         } else if (previousValue > 0) {
             trend = ((double)(currentValue - previousValue) / previousValue) * 100;
+            log.info("Calculated trend: {}", trend);
             trendType = trend > 0 ? "INCREASE" : trend < 0 ? "DECREASE" : "NO_CHANGE";
         } else {
             trend = 0.0;
             trendType = "NO_CHANGE";
         }
+
+        log.info("Final trend result - value: {}, trend: {}, type: {}, isNew: {}",
+                currentValue, trend, trendType, isNew);
 
         return StatsTrendDto.builder()
                 .value(currentValue)

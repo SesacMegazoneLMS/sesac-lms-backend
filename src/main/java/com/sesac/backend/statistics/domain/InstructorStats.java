@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "instructor_statistics")
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

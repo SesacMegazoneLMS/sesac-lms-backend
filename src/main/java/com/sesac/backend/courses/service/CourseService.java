@@ -1,10 +1,7 @@
 package com.sesac.backend.courses.service;
 
 import com.sesac.backend.courses.domain.Course;
-import com.sesac.backend.courses.dto.CourseDto;
-import com.sesac.backend.courses.dto.CourseInstructorDto;
-import com.sesac.backend.courses.dto.CourseSearchCriteria;
-import com.sesac.backend.courses.dto.InstructorInfoDTO;
+import com.sesac.backend.courses.dto.*;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
 import com.sesac.backend.courses.repository.CourseRepository;
@@ -50,9 +47,9 @@ public class CourseService {
     private final UserRepository userRepository;
     private final ReviewRepository reviewRepository;
     private final EnrollmentRepository enrollmentRepository;
-    private final InstructorDetailRepository instructorDetailRepository;
 
     private final InstructorStatsService instructorStatsService;
+    private final InstructorDetailRepository instructorDetailRepository;
 
     public Long createCourse(UUID userId, CourseDto request) {
 
@@ -119,7 +116,6 @@ public class CourseService {
 
         return CourseDto.builder()
                 .id(course.getId())
-                .instructorId(course.getInstructor().getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .level(course.getLevel().getLevel())
@@ -407,5 +403,37 @@ public class CourseService {
             System.out.println("강사 정보 조회 실패 (Exception) : " + e);
             throw new RuntimeException("강사 정보 조회에 실패했습니다.", e);
         }
+    }
+
+
+    // 25.01.03 홍인표 작성. 수강 중인 강좌의 진행률을 반환하는 메서드
+    @Transactional(readOnly = true)
+    public CourseProgressResponse getCourseProgress(Long courseId, UUID userId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
+
+        List<Lecture> lectures = course.getLectures();
+        int totalLectures = lectures.size();
+
+        // 완료된 강의 수 계산
+        int completedLectures = (int) lectures.stream()
+                .filter(lecture -> {
+                    LectureProgress progress = lectureProgressRepository
+                            .findByLectureIdAndStudent_Uuid(lecture.getId(), userId)
+                            .orElse(null);
+                    return progress != null && progress.getIsCompleted();
+                })
+                .count();
+
+        double progressRate = totalLectures > 0
+            ? (double) completedLectures / totalLectures * 100
+            : 0;
+
+        return CourseProgressResponse.builder()
+                .courseId(courseId)
+                .totalLectures(totalLectures)
+                .completedLectures(completedLectures)
+                .progressRate(progressRate)
+                .build();
     }
 }

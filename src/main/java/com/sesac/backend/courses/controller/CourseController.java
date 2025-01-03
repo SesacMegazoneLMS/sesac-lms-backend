@@ -1,16 +1,12 @@
 package com.sesac.backend.courses.controller;
 
-import com.sesac.backend.courses.dto.CourseDto;
-import com.sesac.backend.courses.dto.CourseInstructorDto;
-import com.sesac.backend.courses.dto.CourseSearchCriteria;
-import com.sesac.backend.courses.dto.InstructorInfoDTO;
+import com.sesac.backend.courses.dto.*;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
 import com.sesac.backend.reviews.dto.response.PageResponse;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.service.ReviewService;
-import com.sesac.backend.users.domain.User;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
@@ -290,6 +286,16 @@ public class CourseController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    // 25.01.03 홍인표 작성. 수강 중인 강좌의 진행률을 반환하는 메서드
+    @GetMapping("/{courseId}/progress")
+    public ResponseEntity<CourseProgressResponse> getCourseProgress(
+            @PathVariable Long courseId,
+            Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        CourseProgressResponse progress = courseService.getCourseProgress(courseId, userId);
+        return ResponseEntity.ok(progress);
     }
 
     @GetMapping("/instructor/{instructorId}")
