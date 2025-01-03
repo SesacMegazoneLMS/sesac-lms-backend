@@ -3,6 +3,7 @@ package com.sesac.backend.courses.service;
 import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
+import com.sesac.backend.courses.dto.CourseProgressResponse;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.enums.Category;
 import com.sesac.backend.courses.enums.Level;
@@ -368,5 +369,37 @@ public class CourseService {
             log.error("Error in getRecentReviews: ", e);
             throw e;
         }
+    }
+
+    
+    // 25.01.03 홍인표 작성. 수강 중인 강좌의 진행률을 반환하는 메서드
+    @Transactional(readOnly = true)
+    public CourseProgressResponse getCourseProgress(Long courseId, UUID userId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
+
+        List<Lecture> lectures = course.getLectures();
+        int totalLectures = lectures.size();
+        
+        // 완료된 강의 수 계산
+        int completedLectures = (int) lectures.stream()
+                .filter(lecture -> {
+                    LectureProgress progress = lectureProgressRepository
+                            .findByLectureIdAndStudent_Uuid(lecture.getId(), userId)
+                            .orElse(null);
+                    return progress != null && progress.getIsCompleted();
+                })
+                .count();
+
+        double progressRate = totalLectures > 0 
+            ? (double) completedLectures / totalLectures * 100 
+            : 0;
+
+        return CourseProgressResponse.builder()
+                .courseId(courseId)
+                .totalLectures(totalLectures)
+                .completedLectures(completedLectures)
+                .progressRate(progressRate)
+                .build();
     }
 }

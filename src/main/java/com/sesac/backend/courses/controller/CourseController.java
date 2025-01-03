@@ -2,6 +2,7 @@ package com.sesac.backend.courses.controller;
 
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
+import com.sesac.backend.courses.dto.CourseProgressResponse;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
@@ -291,5 +292,15 @@ public class CourseController {
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    // 25.01.03 홍인표 작성. 수강 중인 강좌의 진행률을 반환하는 메서드
+    @GetMapping("/{courseId}/progress")
+    public ResponseEntity<CourseProgressResponse> getCourseProgress(
+            @PathVariable Long courseId,
+            Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        CourseProgressResponse progress = courseService.getCourseProgress(courseId, userId);
+        return ResponseEntity.ok(progress);
     }
 }

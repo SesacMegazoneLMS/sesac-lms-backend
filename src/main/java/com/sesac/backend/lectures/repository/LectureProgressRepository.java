@@ -19,4 +19,6 @@ public interface LectureProgressRepository extends JpaRepository<LectureProgress
     Optional<LectureProgress> findByStudentUuidAndLectureIdAndIsCompleted(UUID studentUuid, Long lectureId, Boolean isCompleted);
 
     Optional<LectureProgress> findByLectureId(Long id);
+
+    Optional<LectureProgress> findByLectureIdAndStudent_Uuid(Long lectureId, UUID studentUuid);
 }
