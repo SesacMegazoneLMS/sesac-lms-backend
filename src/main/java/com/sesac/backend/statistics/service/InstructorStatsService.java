@@ -8,9 +8,7 @@ import com.sesac.backend.orders.domain.OrderedCourses;
 import com.sesac.backend.orders.repository.OrderedCoursesRepository;
 import com.sesac.backend.reviews.repository.ReviewRepository;
 import com.sesac.backend.statistics.domain.InstructorStats;
-import com.sesac.backend.statistics.dto.CourseIdsDto;
-import com.sesac.backend.statistics.dto.InstructorStatsDto;
-import com.sesac.backend.statistics.dto.MonthlyStatsData;
+import com.sesac.backend.statistics.dto.*;
 import com.sesac.backend.statistics.repository.InstructorStatsRepository;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.enums.UserType;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -53,22 +52,57 @@ public class InstructorStatsService {
 
         log.info("Instructor stats: " + stats);
 
+        List<MonthlyRevenueDto> monthlyRevenue = getLast12MonthRevenue(user);
+
         // 현재 월의 통계 데이터 조회
         LocalDateTime now = LocalDateTime.now();
-        MonthlyStatsData monthlyData = stats.getMonthlyStats(now.getYear(), now.getMonth().getValue());
-        if (monthlyData == null) {
-            monthlyData = MonthlyStatsData.builder()
+        MonthlyStatsData currentMonth = stats.getMonthlyStats(now.getYear(), now.getMonth().getValue());
+        if (currentMonth == null) {
+            currentMonth = MonthlyStatsData.builder()
                     .revenue(BigDecimal.ZERO)
                     .newStudents(0)
                     .averageRating(0.0)
                     .build();
         }
 
+        // 지난 달 통계
+        MonthlyStatsData lastMonth = stats.getMonthlyStats(
+                now.minusMonths(1).getYear(),
+                now.minusMonths(1).getMonthValue()
+        );
+        if (lastMonth == null) {
+            lastMonth = MonthlyStatsData.builder()
+                    .revenue(BigDecimal.ZERO)
+                    .newStudents(0)
+                    .averageRating(0.0)
+                    .build();
+        }
+
+        // 각 지표별 증감률 계산
+        StatsTrendDto studentsTrend = calculateTrend(
+                currentMonth.getNewStudents(),
+                lastMonth.getNewStudents()
+        );
+
+        StatsTrendDto revenueTrend = calculateTrend(
+                currentMonth.getRevenue(),
+                lastMonth.getRevenue()
+        );
+
+        StatsTrendDto ratingTrend = calculateRatingTrend(
+                currentMonth.getAverageRating(),
+                lastMonth.getAverageRating()
+        );
+
         instructorStats.put("totalStudents", stats.getTotalStudents());
         instructorStats.put("activeCourses", stats.getActiveCourses());
         instructorStats.put("totalRevenue", stats.getTotalRevenue());
         instructorStats.put("averageRating", stats.getAverageRating());
-        instructorStats.put("monthlyStats", monthlyData);
+        instructorStats.put("monthlyStats", currentMonth);
+        instructorStats.put("monthlyRevenue", monthlyRevenue);
+        instructorStats.put("totalStudentsTrend", studentsTrend);
+        instructorStats.put("monthlyRevenueTrend", revenueTrend);
+        instructorStats.put("averageRatingTrend", ratingTrend);
 
         log.info("Instructor stats final: " + instructorStats);
 
@@ -208,10 +242,115 @@ public class InstructorStatsService {
             }
         }
 
+        List<Long> distinctCourseIds = new ArrayList<>(new LinkedHashSet<>(sortedCourseIds));
+
         return CourseIdsDto.builder()
                 .courses(courses)
                 .courseIds(courseIds)
                 .sortedCourseIds(sortedCourseIds)
+                .distinctCourseIds(distinctCourseIds)
+                .build();
+    }
+
+    public List<MonthlyRevenueDto> getLast12MonthRevenue(User user) {
+        List<MonthlyRevenueDto> revenueData = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
+        CourseIdsDto ids = getCourseAndOrderedCourseIds(user);
+
+        for (int i = 11; i >= 0; i--) {
+            LocalDateTime targetDate = now.minusMonths(i);
+            BigDecimal monthlyRevenue = calculateMonthlyRevenue(
+                    ids.getSortedCourseIds(),
+                    targetDate.getYear(),
+                    targetDate.getMonthValue()
+            );
+
+            revenueData.add(MonthlyRevenueDto.builder()
+                            .yearMonth(String.format("%d-%02d", targetDate.getYear(), targetDate.getMonthValue()))
+                            .revenue(monthlyRevenue != null ? monthlyRevenue : BigDecimal.ZERO)
+                    .build());
+        }
+
+        return revenueData;
+    }
+
+    // BigDecimal용
+    private StatsTrendDto calculateTrend(BigDecimal currentValue, BigDecimal previousValue) {
+        currentValue = currentValue != null ? currentValue : BigDecimal.ZERO;
+        previousValue = previousValue != null ? previousValue : BigDecimal.ZERO;
+
+        boolean isNew = previousValue.compareTo(BigDecimal.ZERO) == 0 && currentValue.compareTo(BigDecimal.ZERO) > 0;
+        double trend;
+        String trendType;
+
+        if (isNew) {
+            trend = 0.0;
+            trendType = "NEW";
+        } else if (previousValue.compareTo(BigDecimal.ZERO) > 0) {
+            trend = currentValue.subtract(previousValue)
+                    .multiply(new BigDecimal("100"))
+                    .divide(previousValue, 2, RoundingMode.HALF_UP)
+                    .doubleValue();
+            trendType = trend > 0 ? "INCREASE" : trend < 0 ? "DECREASE" : "NO_CHANGE";
+        } else {
+            trend = 0.0;
+            trendType = "NO_CHANGE";
+        }
+
+        return StatsTrendDto.builder()
+                .value(currentValue.intValue())
+                .trend(trend)
+                .trendType(trendType)
+                .isNew(isNew)
+                .build();
+    }
+
+    // 일반 숫자용
+    private StatsTrendDto calculateTrend(int currentValue, int previousValue) {
+        boolean isNew = previousValue == 0 && currentValue > 0;
+        double trend;
+        String trendType;
+
+        if (isNew) {
+            trend = 0.0;
+            trendType = "NEW";
+        } else if (previousValue > 0) {
+            trend = ((double)(currentValue - previousValue) / previousValue) * 100;
+            trendType = trend > 0 ? "INCREASE" : trend < 0 ? "DECREASE" : "NO_CHANGE";
+        } else {
+            trend = 0.0;
+            trendType = "NO_CHANGE";
+        }
+
+        return StatsTrendDto.builder()
+                .value(currentValue)
+                .trend(trend)
+                .trendType(trendType)
+                .isNew(isNew)
+                .build();
+    }
+
+    // 평점용 calculateRatingTrend 메소드
+    private StatsTrendDto calculateRatingTrend(Double currentValue, Double previousValue) {
+        double trend = 0.0;
+        String trendType = "NO_CHANGE";
+
+        currentValue = currentValue != null ? currentValue : 0.0;
+        previousValue = previousValue != null ? previousValue : 0.0;
+
+        if (previousValue == 0 && currentValue > 0) {
+            trend = currentValue;  // 평점은 차이값 자체를 사용
+            trendType = "INCREASE";
+        }
+        else if (previousValue > 0) {
+            trend = currentValue - previousValue;
+            trendType = trend > 0 ? "INCREASE" : trend < 0 ? "DECREASE" : "NO_CHANGE";
+        }
+
+        return StatsTrendDto.builder()
+                .value((int)(currentValue * 10))
+                .trend(Math.round(trend * 10.0) / 10.0)
+                .trendType(trendType)
                 .build();
     }
 

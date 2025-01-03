@@ -4,6 +4,7 @@ import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.service.CourseService;
+import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.service.ReviewService;
@@ -192,6 +193,55 @@ public class CourseController {
         }
     }
 
+    // 최근 수강 신청 조회 호출 추가
+    @GetMapping("/instructor/me/recentenrollments")
+    public ResponseEntity<?> getRecentEnrollments(Authentication authentication){
+
+        try {
+            List<RecentEnrollmentDto> recentEnrollments = courseService.getRecentEnrollments(authentication);
+
+            if (recentEnrollments.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "message", "등록된 강좌 및 최근 수강 신청된 강의가 없습니다.",
+                        "recentEnrollments", Collections.emptyList()
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "강좌 목록 및 최근 수강 신청된 강의 목록 호출 성공",
+                    "recentEnrollments", recentEnrollments
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of());
+        }
+    }
+
+    // 최근 리뷰 조회 호출 추가
+    @GetMapping("/instructor/me/recentreviews")
+    public ResponseEntity<?> getRecentReviews(Authentication authentication){
+
+        try {
+            List<ReviewResponse> recentReviews = courseService.getRecentReviews(authentication);
+
+            if (recentReviews.isEmpty()) {
+                return ResponseEntity.ok(Map.of(
+                        "message", "등록된 강좌 및 최근 리뷰가 없습니다.",
+                        "recentReviews", Collections.emptyList()
+                ));
+            }
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "강좌 목록 및 최근 리뷰 목록 호출 성공",
+                    "recentReviews", recentReviews
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of());
+        }
+
+    }
+
     //특정 강의 수강평 조회
     //api endpoint 표준 때문에 courseCont에 작성했습니다. gnuke
     @GetMapping("/{courseId}/reviews")
@@ -232,4 +282,12 @@ public class CourseController {
         }
     }
 
+    @GetMapping("/free")
+    public ResponseEntity<List<CourseDto>> getFreeCourses() {
+        try {
+            return ResponseEntity.ok(courseService.getFreeCourses());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
