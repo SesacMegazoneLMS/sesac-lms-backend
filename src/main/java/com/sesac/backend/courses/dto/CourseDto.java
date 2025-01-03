@@ -18,6 +18,8 @@ public class CourseDto {
 
     private Long id;
 
+    private Long instructorId;
+
     private String title;
 
     private String description;

@@ -46,6 +46,7 @@ public class SecurityConfig {
                                 .requestMatchers("GET", "/courses/{courseId}/scores").permitAll()
                                 .requestMatchers("GET", "/courses/free").permitAll()
                                 .requestMatchers("GET", "/reviews/{reviewId}/likes").permitAll()
+                                .requestMatchers("GET", "/courses/instructor/{instructorId}").permitAll()
                                 .requestMatchers(STUDENTS_API).hasRole("STUDENT")
                                 .requestMatchers(INSTRUCTORS_API).hasRole("INSTRUCTOR")
                                 .anyRequest().authenticated()

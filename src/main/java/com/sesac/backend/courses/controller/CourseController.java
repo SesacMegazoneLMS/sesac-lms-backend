@@ -3,12 +3,14 @@ package com.sesac.backend.courses.controller;
 import com.sesac.backend.courses.dto.CourseDto;
 import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
+import com.sesac.backend.courses.dto.InstructorInfoDTO;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
 import com.sesac.backend.reviews.dto.response.PageResponse;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.service.ReviewService;
+import com.sesac.backend.users.domain.User;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.PersistenceException;
 import lombok.RequiredArgsConstructor;
@@ -21,10 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RequestMapping("/courses")
@@ -290,6 +289,20 @@ public class CourseController {
             return ResponseEntity.ok(courseService.getFreeCourses());
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @GetMapping("/instructor/{instructorId}")
+    public ResponseEntity<?> getInstructorInfo(@PathVariable Long instructorId) {
+        try {
+            List<InstructorInfoDTO> instructorInfo = courseService.getInstructorInfo(instructorId);
+            return new ResponseEntity<>(instructorInfo, HttpStatus.OK);
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(Map.of("message", e.getMessage()), HttpStatus.NOT_FOUND); // 404 Not Found
+        }
+        catch (Exception e){
+            System.out.println(e);
+            return new ResponseEntity<>(Map.of("message", "강사 정보 조회에 실패했습니다."), HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
         }
     }
 }
