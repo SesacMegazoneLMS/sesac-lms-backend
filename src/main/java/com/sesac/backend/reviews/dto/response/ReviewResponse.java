@@ -2,6 +2,8 @@ package com.sesac.backend.reviews.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -21,5 +23,7 @@ public class ReviewResponse {
     private Integer likes;
 
     private Boolean helpful;
+
+    private String createdAt;
 
 }

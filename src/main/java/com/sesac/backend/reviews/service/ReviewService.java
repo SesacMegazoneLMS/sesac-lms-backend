@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -78,7 +79,7 @@ public class ReviewService {
             throw new EntityNotFoundException("존재하지 않는 강좌입니다."); // 예외 처리
         }
 
-        Pageable pageable = PageRequest.of(page-1, size);
+        Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Review> reviews = reviewRepository.findByCourse_Id(courseId, pageable);
 
         return reviews.map(review -> ReviewResponse.builder()
@@ -88,6 +89,7 @@ public class ReviewService {
                         .rating(review.getRating())
                         .likes(review.getLikes())
                         .helpful(review.getHelpful())
+                        .createdAt(review.getCreatedAt().toString())
                         .build());
     }
 
