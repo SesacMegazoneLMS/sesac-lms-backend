@@ -5,6 +5,7 @@ import com.sesac.backend.courses.dto.CourseInstructorDto;
 import com.sesac.backend.courses.dto.CourseSearchCriteria;
 import com.sesac.backend.courses.service.CourseService;
 import com.sesac.backend.enrollments.dto.response.RecentEnrollmentDto;
+import com.sesac.backend.reviews.dto.response.PageResponse;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.service.ReviewService;
@@ -247,24 +248,24 @@ public class CourseController {
     //api endpoint 표준 때문에 courseCont에 작성했습니다. gnuke
     @GetMapping("/{courseId}/reviews")
     public ResponseEntity<?> getAllReviewsInCourse(@PathVariable Long courseId, @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int size) {
-        try{
-            Page<ReviewResponse> reviews = reviewService.getReviews(courseId, page, size);
-
-            if (reviews.isEmpty()) {
-                return ResponseEntity.ok(Map.of(
-                    "message", "수강평이 없습니다.",
-                    "reviews", reviews,
-                    "totalPages", reviews.getTotalPages()
-                ));
+        try {
+            PageResponse<ReviewResponse> pageResponse = reviewService.getReviews(courseId, page, size);
+            if (pageResponse.getContent().isEmpty()) {
+                return ResponseEntity.ok(PageResponse.<ReviewResponse>builder()
+                    .content(pageResponse.getContent())
+                    .totalPages(pageResponse.getTotalPages())
+                    .totalElements(pageResponse.getTotalElements())
+                    .currentPage(pageResponse.getCurrentPage())
+                    .build());
             }
+            return ResponseEntity.ok(pageResponse);
 
-            return ResponseEntity.ok(Map.of(
-                "message", "수강평 목록 호출 성공",
-                "reviews", reviews,
-                "totalPages", reviews.getTotalPages()
-            ));
-        }catch (EntityNotFoundException e){
-            return ResponseEntity.noContent().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(Map.of("message", e.getMessage()));
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "서버 에러"));
         }
     }
 

@@ -4,6 +4,7 @@ import com.sesac.backend.courses.domain.Course;
 import com.sesac.backend.courses.repository.CourseRepository;
 import com.sesac.backend.reviews.domain.Review;
 import com.sesac.backend.reviews.dto.request.ReviewRequest;
+import com.sesac.backend.reviews.dto.response.PageResponse;
 import com.sesac.backend.reviews.dto.response.ReviewResponse;
 import com.sesac.backend.reviews.dto.response.ReviewStatus;
 import com.sesac.backend.reviews.repository.ReviewRepository;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -73,7 +75,7 @@ public class ReviewService {
     }
 
     // 강좌별 수강평 목록 출력
-    public Page<ReviewResponse> getReviews(Long courseId, int page, int size){
+    public PageResponse<ReviewResponse> getReviews(Long courseId, int page, int size){
         // 강좌 존재 여부 확인
         if (!courseRepository.existsById(courseId)) {
             throw new EntityNotFoundException("존재하지 않는 강좌입니다."); // 예외 처리
@@ -82,15 +84,23 @@ public class ReviewService {
         Pageable pageable = PageRequest.of(page-1, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Review> reviews = reviewRepository.findByCourse_Id(courseId, pageable);
 
-        return reviews.map(review -> ReviewResponse.builder()
-                        .id(review.getId())
-                        .writer(review.getWriter().getNickname())
-                        .content(review.getContent())
-                        .rating(review.getRating())
-                        .likes(review.getLikes())
-                        .helpful(review.getHelpful())
-                        .createdAt(review.getCreatedAt().toString())
-                        .build());
+        List<ReviewResponse> reviewResponses = reviews.getContent().stream()
+            .map(review -> ReviewResponse.builder()
+                .id(review.getId())
+                .writer(review.getWriter().getNickname())
+                .content(review.getContent())
+                .rating(review.getRating())
+                .likes(review.getLikes())
+                .helpful(review.getHelpful())
+                .createdAt(review.getCreatedAt().format(DateTimeFormatter.ISO_DATE_TIME))
+                .build()).toList();
+
+        return PageResponse.<ReviewResponse>builder()
+            .content(reviewResponses)
+            .currentPage(reviews.getNumber() + 1)
+            .totalPages(reviews.getTotalPages())
+            .totalElements(reviews.getTotalElements())
+            .build();
     }
 
     // 수강평 수정----------------------------------------------
@@ -126,7 +136,7 @@ public class ReviewService {
         if (!targetReview.getContent().equals(req.getContent())) {
             targetReview.setContent(req.getContent()); // 리뷰 내용 수정
         }
-        if (targetReview.getRating().equals(req.getRating())) {
+        if (!targetReview.getRating().equals(req.getRating())) {
             targetReview.setRating(req.getRating());   // 평점 수정
         }
         // 닉네임 변경 체크
