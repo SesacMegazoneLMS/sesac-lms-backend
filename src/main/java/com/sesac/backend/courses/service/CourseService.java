@@ -116,6 +116,7 @@ public class CourseService {
 
         return CourseDto.builder()
                 .id(course.getId())
+                .instructorId(course.getInstructor().getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .level(course.getLevel().getLevel())
@@ -384,6 +385,7 @@ public class CourseService {
 
             InstructorInfoDTO instructorInfoDTO = new InstructorInfoDTO(
                 user.getNickname(),
+                user.getId(),
                 instructorDetail.getIntroduction(),
                 instructorDetail.getTechStack(),
                 instructorDetail.getWebsiteUrl(),
