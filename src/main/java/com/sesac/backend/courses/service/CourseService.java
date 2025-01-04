@@ -20,7 +20,9 @@ import com.sesac.backend.users.domain.InstructorDetail;
 import com.sesac.backend.users.domain.User;
 import com.sesac.backend.users.repository.InstructorDetailRepository;
 import com.sesac.backend.users.repository.UserRepository;
+
 import java.math.BigDecimal;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -56,24 +58,24 @@ public class CourseService {
         User user = userRepository.findByUuid(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
         Course course = Course.builder()
-                .instructor(user)
-                .title(request.getTitle())
-                .description(request.getDescription())
-                .level(Level.from(request.getLevel()))
-                .category(Category.valueOf(request.getCategory().toUpperCase()))
-                .price(request.getPrice())
-                .thumbnail(request.getThumbnail())
-                .objectives(request.getObjectives())
-                .requirements(request.getRequirements())
-                .skills(request.getSkills())
-                .lectures(new ArrayList<>()) // 빈 리스트로 초기화
-                .build();
+            .instructor(user)
+            .title(request.getTitle())
+            .description(request.getDescription())
+            .level(Level.from(request.getLevel()))
+            .category(Category.valueOf(request.getCategory().toUpperCase()))
+            .price(request.getPrice())
+            .thumbnail(request.getThumbnail())
+            .objectives(request.getObjectives())
+            .requirements(request.getRequirements())
+            .skills(request.getSkills())
+            .lectures(new ArrayList<>()) // 빈 리스트로 초기화
+            .build();
 
         // Lecture 엔티티들 생성 및 연결
         if (request.getLectures() != null) {
             List<Lecture> lectures = request.getLectures().stream()
-                    .map(lectureRequest -> lectureRequest.toEntity(course))
-                    .toList();
+                .map(lectureRequest -> lectureRequest.toEntity(course))
+                .toList();
             course.setLectures(lectures);
         }
 
@@ -91,32 +93,7 @@ public class CourseService {
         for (Course course : courses) {
 
             courseDtos.add(CourseDto.builder()
-                    .id(course.getId())
-                    .title(course.getTitle())
-                    .description(course.getDescription())
-                    .level(course.getLevel().getLevel())
-                    .category(course.getCategory().toString())
-                    .price(course.getPrice())
-                    .thumbnail(course.getThumbnail())
-                    .objectives(course.getObjectives())
-                    .requirements(course.getRequirements())
-                    .skills(course.getSkills())
-                    .lectures(course.getLectures().stream()
-                            .map(LectureRequest::from)
-                            .toList())
-                    .build());
-        }
-
-        return courseDtos;
-    }
-
-    public CourseDto getCourseByCourseId(Long id) {
-
-        Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("강의가 존재하지 않습니다"));
-
-        return CourseDto.builder()
                 .id(course.getId())
-                .instructorId(course.getInstructor().getId())
                 .title(course.getTitle())
                 .description(course.getDescription())
                 .level(course.getLevel().getLevel())
@@ -127,9 +104,34 @@ public class CourseService {
                 .requirements(course.getRequirements())
                 .skills(course.getSkills())
                 .lectures(course.getLectures().stream()
-                        .map(this::convertToLectureRequest)
-                        .toList())
-                .build();
+                    .map(LectureRequest::from)
+                    .toList())
+                .build());
+        }
+
+        return courseDtos;
+    }
+
+    public CourseDto getCourseByCourseId(Long id) {
+
+        Course course = courseRepository.findById(id).orElseThrow(() -> new RuntimeException("강의가 존재하지 않습니다"));
+
+        return CourseDto.builder()
+            .id(course.getId())
+            .instructorId(course.getInstructor().getId())
+            .title(course.getTitle())
+            .description(course.getDescription())
+            .level(course.getLevel().getLevel())
+            .category(course.getCategory().toString())
+            .price(course.getPrice())
+            .thumbnail(course.getThumbnail())
+            .objectives(course.getObjectives())
+            .requirements(course.getRequirements())
+            .skills(course.getSkills())
+            .lectures(course.getLectures().stream()
+                .map(this::convertToLectureRequest)
+                .toList())
+            .build();
     }
 
     private LectureRequest convertToLectureRequest(Lecture entity) {
@@ -138,55 +140,122 @@ public class CourseService {
         boolean isCompleted = progress != null && progress.getIsCompleted();
 
         return LectureRequest.builder()
-                .id(entity.getId())
-                .courseId(entity.getCourse().getId())
-                .title(entity.getTitle())
-                .duration(entity.getDuration())
-                .orderIndex(entity.getOrderIndex())
-                .videoKey(entity.getVideoKey())
-                .status(entity.getStatus())
-                .isCompleted(isCompleted)
-                .build();
+            .id(entity.getId())
+            .courseId(entity.getCourse().getId())
+            .title(entity.getTitle())
+            .duration(entity.getDuration())
+            .orderIndex(entity.getOrderIndex())
+            .videoKey(entity.getVideoKey())
+            .status(entity.getStatus())
+            .isCompleted(isCompleted)
+            .build();
     }
+
 
     public void updateCourse(Long courseId, UUID userId, CourseDto request) {
+        try {
+            User user = userRepository.findByUuid(userId)
+                .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
 
-        User user = userRepository.findByUuid(userId).orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다"));
+            Course course = courseRepository.findByInstructorAndId(user, courseId)
+                .orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
 
-        Course course = courseRepository.findByInstructorAndId(user, courseId).orElseThrow(() -> new RuntimeException("강의를 찾을 수 없습니다"));
+            // 1. 유효성 검증 및 Course 데이터 업데이트 로직 (기존과 동일)
+            if (request.getTitle() == null || request.getTitle().trim().isEmpty()) {
+                throw new IllegalArgumentException("강좌명은 필수입니다.");
+            }
+            if (request.getDescription() == null || request.getDescription().trim().isEmpty()) {
+                throw new IllegalArgumentException("강좌 설명은 필수입니다.");
+            }
 
-        course.setTitle(request.getTitle());
-        course.setDescription(course.getDescription());
-        course.setLevel(Level.from(request.getLevel()));
-        course.setCategory(Category.valueOf(request.getCategory()));
-        course.setPrice(request.getPrice());
-        course.setThumbnail(request.getThumbnail());
-        course.setObjectives(request.getObjectives());
-        course.setRequirements(request.getRequirements());
-        course.setSkills(request.getSkills());
+            Level level;
+            try {
+                level = Level.from(request.getLevel());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("올바르지 않은 레벨 값입니다: " + request.getLevel());
+            }
 
-        if (request.getLectures() != null) {
-            // 기존 강의 목록 초기화
-            course.getLectures().clear();
+            Category category;
+            try {
+                category = Category.valueOf(request.getCategory());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException("올바르지 않은 카테고리 값입니다: " + request.getCategory());
+            }
 
-            // 수정된 강의 목록 추가
-            List<Lecture> lectures = request.getLectures().stream()
-                    .map(lectureRequest -> lectureRequest.toEntity(course))
-                    .toList();
-            course.setLectures(lectures);
+            course.setTitle(request.getTitle());
+            course.setDescription(request.getDescription());
+            course.setLevel(level);
+            course.setCategory(category);
+            course.setPrice(request.getPrice());
+            course.setThumbnail(request.getThumbnail());
+            course.setObjectives(request.getObjectives());
+            course.setRequirements(request.getRequirements());
+            course.setSkills(request.getSkills());
+
+
+            // 2. lectures 처리
+            if (request.getLectures() != null && !request.getLectures().isEmpty()) {
+                // lectures 업데이트 로직
+                List<Lecture> currentLectures = course.getLectures();
+                List<LectureRequest> requestedLectures = request.getLectures();
+
+
+                // 기존 강의 업데이트 및 신규 강의 추가
+                for (LectureRequest lectureRequest : requestedLectures) {
+                    boolean found = false;
+                    for (Lecture lecture : currentLectures) {
+                        if (lectureRequest.getId() != null && lectureRequest.getId().equals(lecture.getId())) {
+                            //기존 강의 업데이트
+                            lecture.setTitle(lectureRequest.getTitle());
+                            // Lecture 엔티티에 content 필드가 있는지 확인 후 적용
+                            // lecture.setContent(lectureRequest.getContent());
+                            lecture.setDuration(lectureRequest.getDuration());
+                            lecture.setOrderIndex(lectureRequest.getOrderIndex());
+                            lecture.setVideoKey(lectureRequest.getVideoKey());
+                            lecture.setStatus(lectureRequest.getStatus());
+
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        //새로운 강의 추가
+                        Lecture newLecture = lectureRequest.toEntity(course);
+                        currentLectures.add(newLecture);
+                    }
+                }
+
+                // 요청에 없는 기존 강의 삭제 (선택 사항, 필요한 경우 구현)
+                List<Long> requestedLectureIds = requestedLectures.stream()
+                    .filter(lectureDto -> lectureDto.getId() != null)
+                    .map(LectureRequest::getId)
+                    .collect(Collectors.toList());
+                currentLectures.removeIf(lecture -> !requestedLectureIds.contains(lecture.getId()));
+
+                course.setLectures(currentLectures);
+
+            }  // lectures 가 null 이거나 비어있다면 기존 데이터 유지
+
+            courseRepository.save(course);
+            System.out.println("강좌 수정 완료: " + courseId);
+        } catch (Exception e) {
+            System.err.println("강좌 수정 실패: " + courseId + ", 오류: " + e);
+            if (e.getMessage() != null) {
+                System.err.println("에러 메시지 : " + e.getMessage());
+            }
+            throw e;
         }
-
-        courseRepository.save(course);
     }
+
 
     @Transactional(readOnly = true)
     public Page<CourseDto> searchCourses(CourseSearchCriteria criteria, PageRequest pageRequest) {
 
         Sort sort = createSort(criteria.getSort());
         PageRequest sortedPageRequest = PageRequest.of(
-                pageRequest.getPageNumber(),
-                pageRequest.getPageSize(),
-                sort
+            pageRequest.getPageNumber(),
+            pageRequest.getPageSize(),
+            sort
         );
 
         // 검색 조건에 따른 쿼리 생성
@@ -194,37 +263,37 @@ public class CourseService {
 
         if (criteria.getCategory() != null && !criteria.getCategory().isEmpty()) {
             spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("category"), Category.fromValue(criteria.getCategory())));
+                cb.equal(root.get("category"), Category.fromValue(criteria.getCategory())));
         }
 
         if (criteria.getLevel() != null) {
             spec = spec.and((root, query, cb) ->
-                    cb.equal(root.get("level"), Level.from(criteria.getLevel())));
+                cb.equal(root.get("level"), Level.from(criteria.getLevel())));
         }
 
         if (criteria.getSearch() != null) {
             spec = spec.and((root, query, cb) ->
-                    cb.or(
-                            cb.like(root.get("title"), "%" + criteria.getSearch() + "%"),
-                            cb.like(root.get("description"), "%" + criteria.getSearch() + "%")
-                    ));
+                cb.or(
+                    cb.like(root.get("title"), "%" + criteria.getSearch() + "%"),
+                    cb.like(root.get("description"), "%" + criteria.getSearch() + "%")
+                ));
         }
 
         Page<Course> coursePage = courseRepository.findAll(spec, sortedPageRequest);
 
         return coursePage.map(course -> CourseDto.builder()
-                .id(course.getId())
-                .instructorId(course.getInstructor().getId())
-                .title(course.getTitle())
-                .description(course.getDescription())
-                .price(course.getPrice())
-                .level(course.getLevel().getLevel())
-                .category(course.getCategory().getValue())
-                .thumbnail(course.getThumbnail())
-                .objectives(course.getObjectives())
-                .requirements(course.getRequirements())
-                .skills(course.getSkills())
-                .build());
+            .id(course.getId())
+            .instructorId(course.getInstructor().getId())
+            .title(course.getTitle())
+            .description(course.getDescription())
+            .price(course.getPrice())
+            .level(course.getLevel().getLevel())
+            .category(course.getCategory().getValue())
+            .thumbnail(course.getThumbnail())
+            .objectives(course.getObjectives())
+            .requirements(course.getRequirements())
+            .skills(course.getSkills())
+            .build());
     }
 
     public Sort createSort(String sortType) {
@@ -254,7 +323,7 @@ public class CourseService {
         UUID userId = UUID.fromString(authentication.getName());
 
         User user = userRepository.findByUuid(userId).orElseThrow(
-                () -> new RuntimeException("유저를 찾을 수 없습니다")
+            () -> new RuntimeException("유저를 찾을 수 없습니다")
         );
 
         CourseIdsDto ids = instructorStatsService.getCourseAndOrderedCourseIds(user);
@@ -270,21 +339,21 @@ public class CourseService {
 
             // 평균 평점 계산
             double averageRating = reviews.stream()
-                    .mapToDouble(Review::getRating)
-                    .average()
-                    .orElse(0.0);
+                .mapToDouble(Review::getRating)
+                .average()
+                .orElse(0.0);
 
             int enrollmentCount = Collections.frequency(ids.getSortedCourseIds(), course.getId());
 
             LocalDateTime createdAt = course.getCreatedAt();
 
             return CourseInstructorDto.builder()
-                    .id(course.getId())
-                    .title(course.getTitle())
-                    .enrollmentCount(enrollmentCount)
-                    .averageRating(averageRating)
-                    .createdAt(createdAt.toString())
-                    .build();
+                .id(course.getId())
+                .title(course.getTitle())
+                .enrollmentCount(enrollmentCount)
+                .averageRating(averageRating)
+                .createdAt(createdAt.toString())
+                .build();
         });
     }
 
@@ -311,36 +380,36 @@ public class CourseService {
         UUID userId = UUID.fromString(authentication.getName());
 
         User user = userRepository.findByUuid(userId).orElseThrow(
-                () -> new RuntimeException("유저를 찾을 수 없습니다")
+            () -> new RuntimeException("유저를 찾을 수 없습니다")
         );
 
         CourseIdsDto ids = instructorStatsService.getCourseAndOrderedCourseIds(user);
 
         return ids.getDistinctCourseIds().stream()
-                .flatMap(courseId -> {
+            .flatMap(courseId -> {
 
-                    Course course = courseRepository.findById(courseId)
-                            .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
+                Course course = courseRepository.findById(courseId)
+                    .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
 
-                    return enrollmentRepository.findEnrolledUsersWithDateByCourseId(courseId).stream()
-                            .map(enrollment -> RecentEnrollmentDto.builder()
-                                    .userId(enrollment.getUserId())
-                                    .username(enrollment.getUsername())
-                                    .courseName(course.getTitle())
-                                    .enrolledAt(enrollment.getEnrolledAt())
-                                    .build());
-                })
-                .sorted((e1, e2) -> LocalDateTime.parse(e2.getEnrolledAt())
-                        .compareTo(LocalDateTime.parse(e1.getEnrolledAt())))
-                .limit(5)
-                .collect(Collectors.toList());
+                return enrollmentRepository.findEnrolledUsersWithDateByCourseId(courseId).stream()
+                    .map(enrollment -> RecentEnrollmentDto.builder()
+                        .userId(enrollment.getUserId())
+                        .username(enrollment.getUsername())
+                        .courseName(course.getTitle())
+                        .enrolledAt(enrollment.getEnrolledAt())
+                        .build());
+            })
+            .sorted((e1, e2) -> LocalDateTime.parse(e2.getEnrolledAt())
+                .compareTo(LocalDateTime.parse(e1.getEnrolledAt())))
+            .limit(5)
+            .collect(Collectors.toList());
     }
 
     public List<ReviewResponse> getRecentReviews(Authentication authentication) {
         try {
             UUID userId = UUID.fromString(authentication.getName());
             User user = userRepository.findByUuid(userId).orElseThrow(
-                    () -> new RuntimeException("유저를 찾을 수 없습니다")
+                () -> new RuntimeException("유저를 찾을 수 없습니다")
             );
 
             log.info("User found: {}", user);
@@ -349,24 +418,24 @@ public class CourseService {
             log.info("Found courses: {}", courses);
 
             return courses.stream()
-                    .flatMap(course -> {
-                        List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
-                        log.info("Reviews for course {}: {}", course.getId(), reviews);
+                .flatMap(course -> {
+                    List<Review> reviews = reviewRepository.findByCourse_Id(course.getId());
+                    log.info("Reviews for course {}: {}", course.getId(), reviews);
 
-                        return reviews.stream()
-                                .map(review -> ReviewResponse.builder()
-                                        .id(review.getId())
-                                        .writer(review.getWriter().getNickname())
-                                        .content(review.getContent())
-                                        .rating(review.getRating())
-                                        .courseName(course.getTitle())
-                                        .createdAt(review.getCreatedAt().toString())
-                                        .build());
-                    })
-                    .sorted((r1, r2) -> LocalDateTime.parse(r2.getCreatedAt())
-                            .compareTo(LocalDateTime.parse(r1.getCreatedAt())))
-                    .limit(3)
-                    .collect(Collectors.toList());
+                    return reviews.stream()
+                        .map(review -> ReviewResponse.builder()
+                            .id(review.getId())
+                            .writer(review.getWriter().getNickname())
+                            .content(review.getContent())
+                            .rating(review.getRating())
+                            .courseName(course.getTitle())
+                            .createdAt(review.getCreatedAt().toString())
+                            .build());
+                })
+                .sorted((r1, r2) -> LocalDateTime.parse(r2.getCreatedAt())
+                    .compareTo(LocalDateTime.parse(r1.getCreatedAt())))
+                .limit(3)
+                .collect(Collectors.toList());
         } catch (Exception e) {
             log.error("Error in getRecentReviews: ", e);
             throw e;
@@ -380,7 +449,7 @@ public class CourseService {
 
             InstructorDetail instructorDetail = instructorDetailRepository.findByUser_id(instructorId);
 
-            if(instructorDetail == null){
+            if (instructorDetail == null) {
                 throw new NoSuchElementException("해당 ID의 강사 상세 정보를 찾을 수 없습니다: " + instructorId);
             }
 
@@ -413,30 +482,30 @@ public class CourseService {
     @Transactional(readOnly = true)
     public CourseProgressResponse getCourseProgress(Long courseId, UUID userId) {
         Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
+            .orElseThrow(() -> new RuntimeException("강좌를 찾을 수 없습니다."));
 
         List<Lecture> lectures = course.getLectures();
         int totalLectures = lectures.size();
 
         // 완료된 강의 수 계산
         int completedLectures = (int) lectures.stream()
-                .filter(lecture -> {
-                    LectureProgress progress = lectureProgressRepository
-                            .findByLectureIdAndStudent_Uuid(lecture.getId(), userId)
-                            .orElse(null);
-                    return progress != null && progress.getIsCompleted();
-                })
-                .count();
+            .filter(lecture -> {
+                LectureProgress progress = lectureProgressRepository
+                    .findByLectureIdAndStudent_Uuid(lecture.getId(), userId)
+                    .orElse(null);
+                return progress != null && progress.getIsCompleted();
+            })
+            .count();
 
         double progressRate = totalLectures > 0
             ? (double) completedLectures / totalLectures * 100
             : 0;
 
         return CourseProgressResponse.builder()
-                .courseId(courseId)
-                .totalLectures(totalLectures)
-                .completedLectures(completedLectures)
-                .progressRate(progressRate)
-                .build();
+            .courseId(courseId)
+            .totalLectures(totalLectures)
+            .completedLectures(completedLectures)
+            .progressRate(progressRate)
+            .build();
     }
 }
