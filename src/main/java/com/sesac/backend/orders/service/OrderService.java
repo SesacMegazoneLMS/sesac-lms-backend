@@ -59,6 +59,8 @@ public class OrderService {
                     .price(info.getPrice())
                     .build();
 
+            orderedCourses.setPrice((int) (orderedCourses.getPrice() * 0.8));
+
             order.getOrderedCourses().add(orderedCourses);
 
         }
